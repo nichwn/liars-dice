@@ -20,21 +20,25 @@ class Die:
 
 class Hand:
     """Manage a player's hand."""
+    INITIAL_HAND_SIZE = 6
 
     def __init__(self):
-        pass
+        self.hand = []
+        for i in xrange(self.INITIAL_HAND_SIZE):
+            self.hand.append(Die())
 
     def have_die(self):
         """Return True if there is at least one die in the hand, else False."""
-        pass
+        return len(self.hand) != 0
 
     def reroll(self):
         """Reroll the hand."""
-        pass
+        for die in self.hand:
+            die.roll()
 
-    def die_face(self, hand):
+    def die_face(self):
         """Return a sequence of all the die values in a hand."""
-        pass
+        return (die.value for die in self.hand)
 
 
 class GameStatus:

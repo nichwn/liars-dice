@@ -3,17 +3,19 @@
 Handle the actual game components.
 
 """
+from random import randint
 
 
 class Die:
     """Manage a single die."""
 
     def __init__(self):
-        pass
+        self.value = None  # properly assigned in roll
+        self.roll()
 
     def roll(self):
         """Roll the die."""
-        pass
+        self.value = randint(1, 6)
 
 
 class Hand:

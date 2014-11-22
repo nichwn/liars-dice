@@ -4,6 +4,7 @@ Handle the actual game components.
 
 """
 from random import randint
+import collections
 
 
 class Die:
@@ -45,27 +46,46 @@ class GameStatus:
     """Provide functionality for manipulating the game's status."""
 
     def __init__(self):
-        pass
+        self.players = {}
+        self.dice_count = collections.Counter()
 
     def remove_die(self, player):
         """Remove a die from the player's hand.
 
-        Return True if the player's hand becomes empty, else False.
+        Return True if the player's hand becomes empty and removes them from
+        the game, else False.
         """
-        pass
+        removed = self.players[player].hand.pop()
+        self.dice_count -= collections.Counter((removed.value,))
+        die_remains = self.players[player].have_die()
+
+        # Remove eliminated players
+        if not die_remains:
+            self.remove_player(player)
+
+        return die_remains
 
     def add_player(self, player):
         """Add a player to the game."""
-        pass
+        self.players[player] = Hand()
+        self.dice_count += collections.Counter(self.players[player].die_face())
 
     def remove_player(self, player):
         """Remove a player from the game."""
-        pass
+        self.dice_count -= collections.Counter(self.players[player].die_face())
+        del self.players[player]
 
     def reroll_all(self):
         """Reroll the hands of all players."""
-        pass
+        self.dice_count = collections.Counter()
+        for hand in self.players.itervalues():
+            hand.reroll()
+            self.dice_count += collections.Counter(hand.die_face())
 
     def get_winner(self):
         """Return the player who has won the game, if any, else None."""
-        pass
+        remaining = self.players.keys()
+        if len(remaining) == 1:
+            return remaining[0]
+        else:
+            return None

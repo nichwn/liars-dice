@@ -9,5 +9,5 @@ class TestDie(TestCase):
 
     def test_roll(self):
         self.die.roll()
-        self.assertGreaterEqual(self.die.value, 1, "value less than 1")
-        self.assertLessEqual(self.die.value, 6, "value greater than 6")
+        self.assertGreaterEqual(self.die.face, 1, "value less than 1")
+        self.assertLessEqual(self.die.face, 6, "value greater than 6")

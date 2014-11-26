@@ -19,5 +19,5 @@ class TestHand(TestCase):
 
     def test_reroll(self):
         for die in self.hand.hand:
-            self.assertGreaterEqual(die.value, 1, "value less than 1")
-            self.assertLessEqual(die.value, 6, "value greater than 6")
+            self.assertGreaterEqual(die.face, 1, "value less than 1")
+            self.assertLessEqual(die.face, 6, "value greater than 6")

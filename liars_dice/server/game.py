@@ -11,12 +11,12 @@ class Die:
     """Manage a single die."""
 
     def __init__(self):
-        self.value = None  # properly assigned in roll
+        self.face = None  # properly assigned in roll
         self.roll()
 
     def roll(self):
         """Roll the die."""
-        self.value = randint(1, 6)
+        self.face = randint(1, 6)
 
 
 class Hand:
@@ -39,7 +39,7 @@ class Hand:
 
     def die_face(self):
         """Return a sequence of all the die values in a hand."""
-        return (die.value for die in self.hand)
+        return (die.face for die in self.hand)
 
 
 class GameStatus:
@@ -56,7 +56,7 @@ class GameStatus:
         the game, else False.
         """
         removed = self.players[player].hand.pop()
-        self.dice_count -= collections.Counter((removed.value,))
+        self.dice_count -= collections.Counter((removed.face,))
         die_remains = self.players[player].have_die()
 
         # Remove eliminated players

@@ -4,7 +4,6 @@ Functionality common to all players.
 
 """
 
-from twisted.internet.protocol import connectionDone
 from twisted.protocols.basic import LineReceiver
 
 
@@ -16,17 +15,10 @@ class Player(LineReceiver):
     """
 
     def __init__(self):
-        self.players = []
-        self.current_player_index = None
-        self.current_player = None
         self.username = None
         self.hand = None
 
     def lineReceived(self, line):
-        # Interpret messages received from the server, and delegate to the
-        # appropriate functionality.
-        #
-        # Overrides LineReceiver, and is not intended to be overridden itself.
 
         # Parse message
         message = line.split(":")
@@ -41,16 +33,15 @@ class Player(LineReceiver):
             self._received_hand(extra)
             self.notification_hand()
         elif command == "player_status":
-            self._received_player_status(extra)
+            player_data = [(username, int(amount)) for username, amount in
+                           (player.split("=") for player in extra.split(","))]
+            self._handle_player_status(player_data)
         elif command == "next_turn":
-            self._received_next_turn()
-            self.notification_next_turn()
+            self.notification_next_turn(extra)
         elif command == "left":
-            self._received_player_left(extra)
             self.notification_player_left(extra)
         elif command == "joined":
-            self._received_player_joined()
-            self.notification_player_joined()
+            self.notification_player_joined(extra)
         elif command == "username":
             self.notification_name_request()
         elif command == "play":
@@ -99,49 +90,36 @@ class Player(LineReceiver):
         # hand is a string of comma-separated face values.
         self.hand = sorted([int(die) for die in hand.split(",")])
 
-    def _received_player_status(self, data):
-        # Updates player information with that from the server.
-        #
-        # hand is a string of comma-separated values. The format of each of
-        # the values is <player name>=<number of dice> in the order of play.
-        # Players are space delimited.
-        player_data = [player.split("=") for player in data.split(",")]
-        self.players = [(username, int(face)) for username, face in player_data]
-        self.current_player_index = 0
-        self.current_player = self.players[self.current_player_index][0]
+    def notification_player_status(self, player_data):
+        """Respond to being provided with game status.
 
-    def _received_next_turn(self):
-        # Update the active player's turn
-        self.current_player_index = ((self.current_player_index + 1) %
-                                     len(self.players))
-        self.current_player = self.players[self.current_player_index][0]
+        player_data is a list of tuples composed of player names and the number
+        of dice they possess.
 
-    def _received_player_left(self, player):
-        # Update player information when a player (string) leaves the game.
-        usernames = [p[0] for p in self.players]
-        i = usernames.index(player)
-        self.players = self.players[:i] + self.players[i + 1:]
-
-    def _received_player_joined(self, player):
-        # Update player information for when a player (string) joins the game.
-        self.players.append((player, None))
+        The players are in turn order, but the first entry does not
+        necessarily correspond to the next player to play (see
+        notification_next_turn instead).
+        """
+        pass
 
     def notification_name_request(self):
         """Respond to a server's request for a username.
 
-        Intended to be overridden by subclasses.
+        Must be overridden by subclasses.
         """
         raise NotImplementedError
 
     def notification_play_request(self):
         """Respond to a server's request to make a play.
 
-        Intended to be overridden by subclasses.
+        Must be overridden by subclasses.
         """
         raise NotImplementedError
 
-    def notification_next_turn(self):
+    def notification_next_turn(self, player):
         """Respond to the next turn being declared.
+
+        player (string) is the name of the next player to act.
 
         Intended to be overridden by subclasses.
         """

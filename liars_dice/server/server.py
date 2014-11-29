@@ -3,8 +3,9 @@
 Server to run the game.
 
 """
-from twisted.internet.protocol import connectionDone
+from twisted.internet.protocol import connectionDone, Factory
 from twisted.protocols.basic import LineReceiver
+from liars_dice.server.game import GameStatus
 
 
 class LiarsGame(LineReceiver):
@@ -21,7 +22,7 @@ class LiarsGame(LineReceiver):
         """Handle making a connection to a client, and requesting a username."""
         pass
 
-    def connectionLost(self, reason=connectionDone):
+    def connectionLost(self, reason = connectionDone):
         """Handle connection failures."""
         pass
 
@@ -54,3 +55,13 @@ class LiarsGame(LineReceiver):
         the number of remaining dice).
         """
         pass
+
+
+class LiarGameFactory(Factory):
+    """Handle client connections and store the game status."""
+    protocol = LiarsGame
+
+    def __init__(self):
+        self.clients = {}
+        self.game = GameStatus()
+        self.accept_connections = True

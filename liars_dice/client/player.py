@@ -17,6 +17,7 @@ class Player(LineReceiver):
     def __init__(self):
         self.username = None
         self.hand = None
+        self.allow_username_change = True
 
     def lineReceived(self, line):
 
@@ -43,6 +44,7 @@ class Player(LineReceiver):
         elif command == "joined":
             self.notification_player_joined(extra)
         elif command == "username":
+            self.allow_username_change = True
             self.notification_name_request()
         elif command == "play":
             self.notification_play_request()
@@ -67,8 +69,10 @@ class Player(LineReceiver):
         The following characters will be removed from the username if present:
             :
         """
-        self.sendLine("username:" + username.replace(":", ""))
-        self.username = username
+        if self.allow_username_change:
+            self.sendLine("username:" + username.replace(":", ""))
+            self.username = username
+            self.allow_username_change = False
 
     def send_liar(self):
         """Send the server a "Liar" action."""

@@ -89,3 +89,44 @@ class GameStatus:
             return remaining[0]
         else:
             return None
+
+    def turn_player(self):
+        """Return the current turn player (string, or None if the game has
+        ended).
+        """
+        pass
+
+    def get_player_status(self):
+        """Return a list of tuples, where the tuple is a player's name
+        followed by the number of dice they have.
+
+        The order is in turn order, but the first player does not
+        necessarily correspond with the next player to play.
+        """
+        pass
+
+    def handle_bet(self, face, number):
+        """Resolve bets made by the turn player."""
+        pass
+
+    def handle_liar(self):
+        """Resolve liar declarations made by the turn player.
+
+        Return the name of the losing player.
+        """
+        pass
+
+    def handle_spot_on(self):
+        """Handle spot on declarations made by the turn player.
+
+        Return the name of the losing player.
+        """
+        pass
+
+    def next_round(self):
+        """Moves play to the next round."""
+        pass
+
+    def next_turn(self):
+        """Move play to the next turn."""
+        pass

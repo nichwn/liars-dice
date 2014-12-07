@@ -36,7 +36,7 @@ class Player(LineReceiver):
         elif command == "player_status":
             player_data = [(username, int(amount)) for username, amount in
                            (player.split("=") for player in extra.split(","))]
-            self._handle_player_status(player_data)
+            self.notification_player_status(player_data)
         elif command == "next_turn":
             self.notification_next_turn(extra)
         elif command == "left":

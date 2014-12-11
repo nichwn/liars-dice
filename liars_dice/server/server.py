@@ -5,6 +5,7 @@ Server to run the game.
 """
 
 import sys
+from twisted.internet import reactor
 from twisted.internet.protocol import connectionDone, Factory
 from twisted.protocols.basic import LineReceiver
 from twisted.python import log
@@ -135,3 +136,5 @@ class LiarGameFactory(Factory):
 
 
 log.startLogging(sys.stdout)
+reactor.listenTCP(9637, LiarGameFactory())
+reactor.run()

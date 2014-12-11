@@ -54,11 +54,7 @@ class GameStatus:
         self.previous_bet = None  # after bets are made, will be (face, number)
 
     def remove_die(self, player):
-        """Remove a die from the player's hand.
-
-        Return True if the player's hand becomes empty and removes them from
-        the game, else False.
-        """
+        """Remove a die from the player's hand."""
         removed = self.players[player].hand.pop()
         self.dice_count -= collections.Counter((removed.face,))
         die_remains = self.players[player].have_die()
@@ -66,8 +62,6 @@ class GameStatus:
         # Remove eliminated players
         if not die_remains:
             self.remove_player(player)
-
-        return die_remains
 
     def add_player(self, player):
         """Add a player to the game."""

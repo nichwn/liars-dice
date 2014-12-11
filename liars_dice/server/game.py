@@ -72,12 +72,26 @@ class GameStatus:
     def add_player(self, player):
         """Add a player to the game."""
         self.players[player] = Hand()
+        self.player_order += (player,)
         self.dice_count += collections.Counter(self.players[player].die_face())
 
     def remove_player(self, player):
         """Remove a player from the game."""
         self.dice_count -= collections.Counter(self.players[player].die_face())
+
+        # Adjust to handle turn being removed
+        if self.turn_player() == player:
+            self.turn_player_index -= 1
+
+        # Round players
+        round_index = self.round_player_index % len(self.player_order)
+        if self.player_order[round_index] == player:
+            self.round_player_index -= 1
+
         del self.players[player]
+        order_index = self.player_order.index(player)
+        self.player_order = (self.player_order[:order_index] +
+                             self.player_order[order_index + 1:])
 
     def reroll_all(self):
         """Reroll the hands of all players."""

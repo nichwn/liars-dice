@@ -100,25 +100,42 @@ class TestGameStatus(TestCase):
                          "winner")
 
     def test_turn_player(self):
-        self.fail()
-
-    def test_get_player_status(self):
-        self.fail()
-
-    def test_handle_die_loss(self):
-        self.fail()
+        self.status.add_player("test2")
+        self.status.turn_player_index = 0
+        self.assertEqual(self.status.turn_player(), "test",
+                         "incorrect turn player (original player)")
+        self.status.turn_player_index = 1
+        self.assertEqual(self.status.turn_player(), "test2",
+                         "incorrect turn player added player)")
 
     def test_handle_bet(self):
-        self.fail()
+        self.status.handle_bet(2, 4)
+        self.assertEqual(self.status.previous_bet, (2, 4),
+                         "incorrect previous bet")
 
     def test_handle_liar(self):
-        self.fail()
+        self.status.turn_player_index = 0
+        self.status.add_player("test2")
+        self.status.handle_bet(2, 4)
+        self.status.dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
+        self.assertEqual(self.status.handle_liar(), "test",
+                         "Wrong player (incorrect guess)")
+
+        self.status.handle_bet(2, 5)
+        self.status.dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
+        self.assertEqual(self.status.handle_liar(), "test2",
+                         "Wrong player (correct guess)")
 
     def test_handle_spot_on(self):
-        self.fail()
+        self.status.turn_player_index = 0
+        self.status.add_player("test2")
+        self.status.handle_bet(2, 4)
+        self.status.dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
+        self.assertEqual(self.status.handle_spot_on(), "test2",
+                         "Wrong player (correct guess)")
 
-    def test_next_round(self):
-        self.fail()
+        self.status.handle_bet(2, 5)
+        self.status.dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
+        self.assertEqual(self.status.handle_spot_on(), "test",
+                         "Wrong player (incorrect guess)")
 
-    def test_next_turn(self):
-        self.fail()

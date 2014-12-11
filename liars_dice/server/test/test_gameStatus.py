@@ -1,12 +1,13 @@
 from unittest import TestCase
 import collections
-from liars_dice.server.game import GameStatus, Hand
+from liars_dice.server.game import GameStatus, Hand, Die
 
 
 class TestGameStatus(TestCase):
     def setUp(self):
         self.status = GameStatus()
         self.status.players["test"] = Hand()
+        self.status.player_order = ("test",)
         self.status.dice_count = collections.Counter(
             self.status.players["test"].die_face())
 
@@ -19,12 +20,24 @@ class TestGameStatus(TestCase):
         self.assertEqual(self.status.dice_count, collections.Counter(
             self.status.players["test"].die_face()), "incorrect dice tally")
 
+        self.status = GameStatus()
+        self.status.players["singledie"] = Hand()
+        self.status.players["singledie"].hand = [Die()]
+        self.status.player_order = ["singledie", ]
+        self.status.remove_die("singledie")
+        self.assertEqual(len(self.status.players), 0,
+                         "did not remove the player")
+        self.assertEqual(len(self.status.player_order), 0,
+                         "did not adjust the player_order")
+
     def test_add_player(self):
         old_count = len(self.status.players)
         self.status.add_player("test2")
         new_count = len(self.status.players)
         self.assertEqual(new_count, old_count + 1,
                          "did not add a single player")
+        self.assertEqual(len(self.status.player_order), new_count,
+                         "did not add the player to the turn order")
         self.assertIsInstance(self.status.players["test2"], Hand,
                               "failed to create a hand")
         self.assertEqual(self.status.dice_count, collections.Counter(
@@ -36,6 +49,9 @@ class TestGameStatus(TestCase):
         self.assertEqual(len(self.status.players), 2,
                          "test case setup does not have the expected two "
                          "players")
+        self.assertEqual(len(self.status.player_order), 2,
+                         "test case setup does not have the expected two "
+                         "player turn order")
         self.status.remove_player("test2")
         self.assertEqual(self.status.dice_count, collections.Counter(
             self.status.players["test"].die_face()), "incorrect dice tally "
@@ -43,8 +59,13 @@ class TestGameStatus(TestCase):
         self.assertEqual(len(self.status.players), 1,
                          "did not exclusively remove a single player from "
                          "multiple")
+        self.assertEqual(len(self.status.player_order), 1,
+                         "did not remove the player from the turn order (2 -> "
+                         "1)")
         self.assertTrue("test2" not in self.status.players,
                         "did not remove the correct player")
+        self.assertTrue("test2" not in self.status.player_order,
+                        "did not remove the correct player from turn order")
         self.assertEqual(self.status.dice_count, collections.Counter(
             self.status.players["test"].die_face()), "incorrect dice tally "
                                                      "for single player")
@@ -52,6 +73,9 @@ class TestGameStatus(TestCase):
         self.assertEqual(len(self.status.players), 0,
                          "did not exclusively remove a single player when "
                          "alone")
+        self.assertEqual(len(self.status.player_order), 0,
+                         "did not remove the player from the turn order (1 -> "
+                         "0)")
         self.assertEqual(self.status.dice_count, collections.Counter(),
                          "incorrect dice tally for no players")
 
@@ -74,3 +98,27 @@ class TestGameStatus(TestCase):
         self.assertEqual(self.status.get_winner(), "test",
                          "did not provide the correct winner, when there is a "
                          "winner")
+
+    def test_turn_player(self):
+        self.fail()
+
+    def test_get_player_status(self):
+        self.fail()
+
+    def test_handle_die_loss(self):
+        self.fail()
+
+    def test_handle_bet(self):
+        self.fail()
+
+    def test_handle_liar(self):
+        self.fail()
+
+    def test_handle_spot_on(self):
+        self.fail()
+
+    def test_next_round(self):
+        self.fail()
+
+    def test_next_turn(self):
+        self.fail()

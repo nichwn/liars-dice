@@ -112,7 +112,15 @@ class GameStatus:
         """Return the current turn player (string, or None if the game has
         ended).
         """
-        pass
+        i = self.turn_player_index % len(self.player_order)
+        return self.player_order[i]
+
+    def turn_player_previous(self):
+        """Return the previous turn player (string, or None if the game has
+        ended).
+        """
+        i = (self.turn_player_index - 1) % len(self.player_order)
+        return self.player_order[i]
 
     def get_player_status(self):
         """Return a list of tuples, where the tuple is a player's name
@@ -121,30 +129,46 @@ class GameStatus:
         The order is in turn order, but the first player does not
         necessarily correspond with the next player to play.
         """
-        pass
+        return [(player, len(self.players[player].hand))
+                for player in self.player_order]
 
     def handle_bet(self, face, number):
         """Resolve bets made by the turn player."""
-        pass
+        self.previous_bet = (face, number)
 
     def handle_liar(self):
         """Resolve liar declarations made by the turn player.
 
         Return the name of the losing player.
         """
-        pass
+        face, number = self.previous_bet
+        if number <= self.dice_count[face]:
+            player = self.turn_player()
+        else:
+            player = self.turn_player_previous()
+
+        self.remove_die(player)
+        return player
 
     def handle_spot_on(self):
         """Handle spot on declarations made by the turn player.
 
         Return the name of the losing player.
         """
-        pass
+        face, number = self.previous_bet
+        if number != self.dice_count[face]:
+            player = self.turn_player()
+        else:
+            player = self.turn_player_previous()
+
+        self.remove_die(player)
+        return player
 
     def next_round(self):
         """Moves play to the next round."""
-        pass
+        self.round_player_index += 1
+        self.turn_player_index = self.round_player_index
 
     def next_turn(self):
         """Move play to the next turn."""
-        pass
+        self.turn_player_index += 1

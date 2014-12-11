@@ -108,6 +108,15 @@ class TestGameStatus(TestCase):
         self.assertEqual(self.status.turn_player(), "test2",
                          "incorrect turn player added player)")
 
+    def test_turn_player_previous(self):
+        self.status.add_player("test2")
+        self.status.turn_player_index = 0
+        self.assertEqual(self.status.turn_player_previous(), "test2",
+                         "incorrect previous player - should be 'test2'")
+        self.status.turn_player_index = 1
+        self.assertEqual(self.status.turn_player_previous(), "test",
+                         "incorrect previous player - should be 'test'")
+
     def test_handle_bet(self):
         self.status.handle_bet(2, 4)
         self.assertEqual(self.status.previous_bet, (2, 4),

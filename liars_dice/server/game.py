@@ -47,7 +47,11 @@ class GameStatus:
 
     def __init__(self):
         self.players = {}
+        self.player_order = []
+        self.round_player_index = -1  # handled in round-related methods
+        self.turn_player_index = -1  # handled in round and turn-related methods
         self.dice_count = collections.Counter()
+        self.previous_bet = None  # after bets are made, will be (face, number)
 
     def remove_die(self, player):
         """Remove a die from the player's hand.

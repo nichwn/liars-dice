@@ -3,6 +3,7 @@
 An interface for a human player to play the game.
 
 """
+from twisted.internet import reactor
 from twisted.internet.protocol import ClientFactory
 from liars_dice.client.player import Player
 
@@ -64,3 +65,10 @@ class ConsoleHumanFactory(ClientFactory):
 
     def clientConnectionFailed(self, connector, reason):
         pass
+
+
+if __name__ == "__main__":
+    PORT = 9637
+    host = raw_input("Host: ")
+    reactor.connectTCP(host, 9637, ConsoleHumanFactory())
+    reactor.run()

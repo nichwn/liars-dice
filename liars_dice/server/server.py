@@ -37,14 +37,14 @@ class LiarsGame(LineReceiver):
             if command == "liar":
                 self.send_message(line)
                 log.msg("Turn player made a 'Liar' accusation.")
-                losing_player = self.game.handle_liar()
+                losing_player = self.factory.game.handle_liar()
                 self.send_message("player_lost_die:" + losing_player)
                 self.next_turn()
 
             elif command == "spot_on":
                 self.send_message(line)
                 log.msg("Turn player predicted 'spot_on'.")
-                losing_player = self.game.handle_spot_on()
+                losing_player = self.factory.game.handle_spot_on()
                 self.send_message("player_lost_die:" + losing_player)
                 self.next_turn()
 
@@ -52,7 +52,7 @@ class LiarsGame(LineReceiver):
                 self.send_message(line)
                 log.msg("Turn player made the prediction: " + line)
                 face, number = extra.split(",")
-                self.game.handle_bet(face, number)
+                self.factory.game.handle_bet(face, number)
                 self.next_turn()
 
     def connectionMade(self):
@@ -95,8 +95,8 @@ class LiarsGame(LineReceiver):
 
     def roll_new_round(self):
         """Roll a new round of the game."""
-        self.game.next_round()
-        next_player = self.game.turn_player()
+        self.factory.game.next_round()
+        next_player = self.factory.game.turn_player()
         log.msg("New round")
         self.send_message("new_round")
         self.send_player_status()
@@ -107,8 +107,8 @@ class LiarsGame(LineReceiver):
         """Inform clients of the next player's turn, where next_player
         (string) is the player whose turn it is.
         """
-        self.game.next_turn()
-        next_player = self.game.turn_player()
+        self.factory.game.next_turn()
+        next_player = self.factory.game.turn_player()
         log.msg("Next Turn: " + next_player)
         self.send_message(self, "next_turn:" + next_player)
 

@@ -55,16 +55,17 @@ class ConsoleHumanFactory(ClientFactory):
     """Handle client connections and store the game status."""
 
     def startedConnecting(self, connector):
-        pass
+        print "Attempting to connect to the server..."
 
     def buildProtocol(self, addr):
-        pass
+        print "Connection established.\n"
+        return ConsoleHuman()
 
     def clientConnectionLost(self, connector, reason):
-        pass
+        print "Connection to the server lost. Reason:", reason
 
     def clientConnectionFailed(self, connector, reason):
-        pass
+        print "Failed to connect. Reason:", reason
 
 
 if __name__ == "__main__":

@@ -71,7 +71,7 @@ class LiarsGame(LineReceiver):
 
     def _received_username(self, username):
         """Set the client's username."""
-        if username not in self.factory.clients and self.username is not None:
+        if username not in self.factory.clients and self.username is None:
             self.factory.clients[username] = self
             self.factory.game.add_player(username)
             log.msg(username + " joined the game.")

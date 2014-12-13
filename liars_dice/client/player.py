@@ -160,7 +160,7 @@ class Player(LineReceiver):
         """
         pass
 
-    def notification_player_lost_die(self, string):
+    def notification_player_lost_die(self, player):
         """Respond to a player (string) losing a die.
 
         Intended to be overridden by subclasses.

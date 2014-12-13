@@ -12,43 +12,82 @@ class ConsoleHuman(Player):
     """A player instance."""
 
     def notification_player_status(self, player_data):
-        pass
+        print "Players\tDice"
+        for player, number in player_data:
+            print player + "\t" + str(number)
 
     def notification_name_request(self):
-        raise NotImplementedError
+        print "Username requested."
+        username = raw_input("Username: ")
+        self.send_name(username)
 
     def notification_play_request(self):
-        raise NotImplementedError
+        print "It's your turn. Choose a play to make."
+        print ("Type 'Liar!' to make a liar declaration, or 'Spot On!' for a "
+               "spot on declaration.")
+        print ("Otherwise, provide two space-delimited numbers, where the "
+               "first is the die face, and the second the number predicted.")
+
+        invalid = True
+        while invalid:
+            play = raw_input("Command: ").lower()
+            if play.startswith("liar"):
+                self.send_liar()
+                invalid = False
+            elif play.startswith("spot on"):
+                self.send_spot_on()
+                invalid = False
+            elif len(play.split()) == 2:
+                try:
+                    face, number = ((int(face), int(number))
+                                    for face, number in play.split())
+                    self.send_bet(face, number)
+                    invalid = False
+                except ValueError:
+                    pass
+
+            if invalid:
+                "Could not parse the command. Did you type it in correctly?"
 
     def notification_next_turn(self, player):
-        pass
+        msg = "\n" + player
+        if player[-1] == "s":
+            msg += "'"
+        else:
+            msg += "'s"
+        msg += " turn."
+        print msg
 
     def notification_hand(self):
-        pass
+        print "New hand received:\t", self.hand
 
     def notification_bet(self, face, number):
-        pass
+        print "Bet made."
+        print "Face:\t" + str(face)
+        print "Number:\t" + str(number)
 
     def notification_spot_on(self):
-        pass
+        print "'Spot On!' declared."
 
     def notification_liar(self):
-        pass
+        print "'Liar!' declared."
 
-    def notification_player_lost_die(self, string):
-        pass
+    def notification_player_lost_die(self, player):
+        print player + " lost a die."
 
     def notification_player_left(self, player):
-        pass
+        print player + " left the game."
 
     def notification_player_joined(self, player):
-        pass
+        print player + " has joined the game."
 
     def notification_new_round(self):
-        pass
+        print "\nA new round has begun."
 
     def notification_winner(self, player):
-        pass
+        print "\n" + player + " has won the game."
+        if self.username == player:
+            print "Congratulations " + player
 
 
 class ConsoleHumanFactory(ClientFactory):

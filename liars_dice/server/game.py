@@ -127,8 +127,25 @@ class GameStatus:
                 for player in self.player_order]
 
     def handle_bet(self, face, number):
-        """Resolve bets made by the turn player."""
-        self.previous_bet = (face, number)
+        """Resolve bets made by the turn player.
+
+        Return True if the bet is valid, else False.
+        """
+        # Grab previous bet
+        if self.previous_bet is not None:
+            old_face, old_number = self.previous_bet
+        else:
+            old_face, old_number = (1, 0)
+
+        # Handle the current bet
+        correct_range = number >= 1 and 1 <= face <= 6
+        allowed_bet = (number > old_number or
+                       (face > old_face and number == old_number))
+        if correct_range and allowed_bet:
+            self.previous_bet = (face, number)
+            return True
+        else:
+            return False
 
     def handle_liar(self):
         """Resolve liar declarations made by the turn player.

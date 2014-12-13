@@ -60,13 +60,13 @@ class LiarsGame(LineReceiver):
         if self.factory.accept_connections:
             self.sendLine("username")
 
-    def connectionLost(self, reason=connectionDone):
+    def connectionLost(self, reason = connectionDone):
         """Handle connection failures."""
         if self.username is not None:
             self.factory.game.remove_player(self.username)
             del self.factory.clients[self.username]
-            self.send_message("left:" + self.username)
             log.msg(self.username + " disconnected from the server.")
+            self.send_message("left:" + self.username)
             self.roll_new_round()
 
     def _received_username(self, username):
@@ -75,7 +75,9 @@ class LiarsGame(LineReceiver):
             self.factory.clients[username] = self
             self.factory.game.add_player(username)
             log.msg(username + " joined the game.")
+            self.send_message("joined:" + username)
             self.username = username
+            self.send_player_status()
         elif username in self.factory.clients:
             log.msg("A client attempted to join as '" + username +
                     "' but the username had already been taken.")
@@ -89,7 +91,7 @@ class LiarsGame(LineReceiver):
         the messages are sent. To send the message to all clients, it should
         be None instead.
         """
-        for username, client in self.factory.clients:
+        for username, client in self.factory.clients.items():
             if client_usernames is None or username in client_usernames:
                 client.sendLine(message)
 
@@ -117,8 +119,8 @@ class LiarsGame(LineReceiver):
         the number of remaining dice).
         """
         player_data = self.factory.game.get_player_status()
-        message = "player_status:" + ",".join(["=".join(status) for status in
-                                               player_data])
+        message = ("player_status:" +
+                   ",".join(p + "=" + str(dice) for p, dice in player_data))
 
         # Send the message
         self.send_message(message)

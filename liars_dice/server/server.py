@@ -27,10 +27,11 @@ class LiarsGame(LineReceiver):
         else:
             extra = message[1]
 
-        # Anyone can send these messages, as long as the server is accepting
-        # new connections
-        if command == "username" and self.factory.accept_connections:
+        if command == "username":
             self._received_username(extra)
+
+        elif command == "start":
+            self._received_start()
 
         # These commands can only be performed by the turn player
         elif self.factory.game.turn_player() == self.username:
@@ -57,7 +58,7 @@ class LiarsGame(LineReceiver):
 
     def connectionMade(self):
         """Handle making a connection to a client, and requesting a username."""
-        if self.factory.accept_connections:
+        if not self.factory.game_started:
             self.sendLine("username")
 
     def connectionLost(self, reason = connectionDone):
@@ -82,6 +83,16 @@ class LiarsGame(LineReceiver):
             log.msg("A client attempted to join as '" + username +
                     "' but the username had already been taken.")
             self.sendLine("username")
+
+    def _received_start(self):
+        """Start the game."""
+        i = self.factory.game.player_order.index(self.username)
+
+        # Only the first, still active, player can start the game
+        # There must be at least 2 players
+        if i == 0 and len(self.factory.game.player_order) >= 2:
+            self.factory.game_started = True
+            self.roll_new_round()
 
     def send_message(self, message, client_usernames=None):
         """Send a message to all connected clients.
@@ -134,7 +145,7 @@ class LiarGameFactory(Factory):
     def __init__(self):
         self.clients = {}
         self.game = GameStatus()
-        self.accept_connections = True
+        self.game_started = False
 
 
 log.startLogging(sys.stdout)

@@ -61,7 +61,7 @@ class LiarsGame(LineReceiver):
         if not self.factory.game_started:
             self.sendLine("username")
 
-    def connectionLost(self, reason = connectionDone):
+    def connectionLost(self, reason=connectionDone):
         """Handle connection failures."""
         if self.username is not None:
             self.factory.game.remove_player(self.username)
@@ -91,8 +91,15 @@ class LiarsGame(LineReceiver):
         # Only the first, still active, player can start the game
         # There must be at least 2 players
         if i == 0 and len(self.factory.game.player_order) >= 2:
+            log.msg("Game started on the request of: " + self.username)
             self.factory.game_started = True
             self.roll_new_round()
+        else:
+            log.msg(
+                self.username + " attempted to start the game, but they "
+                                "either did not have permission to do so, "
+                                "or there were not enough players to start "
+                                "the game.")
 
     def send_message(self, message, client_usernames=None):
         """Send a message to all connected clients.

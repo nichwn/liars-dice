@@ -88,6 +88,15 @@ class Player(LineReceiver):
         """
         self.sendLine("bet:" + str(face) + "," + str(number))
 
+    def send_start(self):
+        """Send a message to the server to start the game.
+
+        Will only work if the player is the lead player, and there are at least
+        two players who have joined the game.
+        """
+        # Checking the conditions for starting the game is done server-side
+        self.sendLine("start")
+
     def _received_hand(self, hand):
         # Update a player's hand based on server information.
         #

@@ -35,7 +35,7 @@ class ConsoleHuman(Player):
         print "It's your turn. Choose a play to make."
         print ("Type 'Liar!' to make a liar declaration, or 'Spot On!' for a "
                "spot on declaration.")
-        print ("Otherwise, provide two space-delimited numbers, where the "
+        print ("Otherwise, provide two space delimited numbers, where the "
                "first is the die face, and the second the number predicted.")
 
         invalid = True

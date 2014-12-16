@@ -105,9 +105,8 @@ class LiarsGame(LineReceiver):
         """Send a message to all connected clients.
 
         message (string) is the message to send, and client_usernames is a
-        list of all of the clients whose username are contained in it to whom
-        the messages are sent. To send the message to all clients, it should
-        be None instead.
+        list of all of the usernames of all clients to whom the messages are to
+        be sent. To send the message to all clients, pass None instead.
         """
         for username, client in self.factory.clients.items():
             if client_usernames is None or username in client_usernames:
@@ -119,9 +118,10 @@ class LiarsGame(LineReceiver):
         next_player = self.factory.game.turn_player()
         log.msg("New round")
         self.send_message("new_round")
+        log.msg("Start of Round Player: " + next_player)
         self.send_player_status()
         self.send_message("next_turn:" + next_player)
-        log.msg("Start of Round Player: " + next_player)
+        self.send_message("play", next_player)
 
     def next_turn(self):
         """Inform clients of the next player's turn, where next_player
@@ -131,6 +131,7 @@ class LiarsGame(LineReceiver):
         next_player = self.factory.game.turn_player()
         log.msg("Next Turn: " + next_player)
         self.send_message(self, "next_turn:" + next_player)
+        self.send_message("play", next_player)
 
     def send_player_status(self):
         """Inform all clients of the game status (player names with

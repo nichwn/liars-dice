@@ -11,15 +11,25 @@ from liars_dice.client.player import Player
 class ConsoleHuman(Player):
     """A player instance."""
 
+    def __init__(self):
+        Player.__init__(self)
+        self.display_start_prompt = False
+
     def notification_player_status(self, player_data):
+        # Display message
         print "Players\tDice"
         for player, number in player_data:
             print player + "\t" + str(number)
+
+        # Determine if they can start the game
+        if player_data[0][0] == self.username:
+            self.display_start_prompt = True
 
     def notification_name_request(self):
         print "Username requested."
         username = raw_input("Username: ")
         self.send_name(username)
+        print
 
     def notification_play_request(self):
         print "It's your turn. Choose a play to make."
@@ -75,11 +85,30 @@ class ConsoleHuman(Player):
     def notification_player_lost_die(self, player):
         print player + " lost a die."
 
+    def start_prompt(self):
+        """Prompt the player as to whether they would like to start the game,
+        if they were the first player to join the game.
+        """
+        invalid = True
+        while invalid:
+            response = (raw_input("Would you like to start the game "
+                                  "[Y/n]?").lower())
+
+            if response == "y" or response == "yes":
+                self.sendLine("start")
+                invalid = False
+            elif response == "n" or response == "no":
+                invalid = False
+            else:
+                print "Please type 'Y' or 'n'."
+
     def notification_player_left(self, player):
         print player + " left the game."
 
     def notification_player_joined(self, player):
         print player + " has joined the game."
+        if self.display_start_prompt:
+            self.start_prompt()
 
     def notification_new_round(self):
         print "\nA new round has begun."

@@ -140,5 +140,5 @@ class ConsoleHumanFactory(ClientFactory):
 if __name__ == "__main__":
     PORT = 9637
     host = raw_input("Host: ")
-    reactor.connectTCP(host, 9637, ConsoleHumanFactory())
+    reactor.connectTCP(host, PORT, ConsoleHumanFactory())
     reactor.run()

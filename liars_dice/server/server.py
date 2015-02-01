@@ -9,6 +9,7 @@ from twisted.internet import reactor
 from twisted.internet.protocol import connectionDone, Factory
 from twisted.protocols.basic import LineReceiver
 from twisted.python import log
+from liars_dice import network_command
 from liars_dice.server.game import GameStatus
 
 
@@ -20,36 +21,38 @@ class LiarsGame(LineReceiver):
 
     def lineReceived(self, line):
         """Handle receiving messages from clients."""
-        message = line.split(":")
+        message = line.split(network_command.DELIMINATOR)
         command = message[0]
         if len(message) == 1:
             extra = None
         else:
             extra = message[1]
 
-        if command == "username":
+        if command == network_command.USERNAME:
             self._received_username(extra)
 
-        elif command == "start":
+        elif command == network_command.START:
             self._received_start()
 
         # These commands can only be performed by the turn player
         elif self.factory.game.turn_player() == self.username:
-            if command == "liar":
+            if command == network_command.LIAR:
                 self.send_message(line)
                 log.msg("Turn player made a 'Liar' accusation.")
                 losing_player = self.factory.game.handle_liar()
-                self.send_message("player_lost_die:" + losing_player)
+                self.send_message(network_command.PLAYER_LOST_DIE +
+                                  network_command.DELIMINATOR + losing_player)
                 self.next_turn()
 
-            elif command == "spot_on":
+            elif command == network_command.SPOT_ON:
                 self.send_message(line)
                 log.msg("Turn player predicted 'spot_on'.")
                 losing_player = self.factory.game.handle_spot_on()
-                self.send_message("player_lost_die:" + losing_player)
+                self.send_message(network_command.PLAYER_LOST_DIE +
+                                  network_command.DELIMINATOR + losing_player)
                 self.next_turn()
 
-            elif command == "bet":
+            elif command == network_command.BET:
                 self.send_message(line)
                 log.msg("Turn player made the prediction: " + line)
                 face, number = extra.split(",")
@@ -59,7 +62,7 @@ class LiarsGame(LineReceiver):
     def connectionMade(self):
         """Handle making a connection to a client, and requesting a username."""
         if not self.factory.game_started:
-            self.sendLine("username")
+            self.sendLine(network_command.USERNAME)
 
     def connectionLost(self, reason=connectionDone):
         """Handle connection failures."""
@@ -67,7 +70,8 @@ class LiarsGame(LineReceiver):
             self.factory.game.remove_player(self.username)
             del self.factory.clients[self.username]
             log.msg(self.username + " disconnected from the server.")
-            self.send_message("left:" + self.username)
+            self.send_message(network_command.PLAYER_LEFT +
+                              network_command.DELIMINATOR + self.username)
             self.roll_new_round()
 
     def _received_username(self, username):
@@ -76,13 +80,14 @@ class LiarsGame(LineReceiver):
             self.factory.clients[username] = self
             self.factory.game.add_player(username)
             log.msg(username + " joined the game.")
-            self.send_message("joined:" + username)
+            self.send_message(network_command.PLAYER_JOINED +
+                              network_command.DELIMINATOR + username)
             self.username = username
             self.send_player_status()
         elif username in self.factory.clients:
             log.msg("A client attempted to join as '" + username +
                     "' but the username had already been taken.")
-            self.sendLine("username")
+            self.sendLine(network_command.USERNAME)
 
     def _received_start(self):
         """Start the game."""
@@ -117,11 +122,13 @@ class LiarsGame(LineReceiver):
         self.factory.game.next_round()
         next_player = self.factory.game.turn_player()
         log.msg("New round")
-        self.send_message("new_round")
+        self.send_message(network_command.NEXT_ROUND)
         log.msg("Start of Round Player: " + next_player)
         self.send_player_status()
-        self.send_message("next_turn:" + next_player)
-        self.send_message("play", next_player)
+        self.send_message(
+            network_command.NEXT_TURN + network_command.DELIMINATOR +
+            next_player)
+        self.send_message(network_command.PLAY, next_player)
 
     def next_turn(self):
         """Inform clients of the next player's turn, where next_player
@@ -130,15 +137,17 @@ class LiarsGame(LineReceiver):
         self.factory.game.next_turn()
         next_player = self.factory.game.turn_player()
         log.msg("Next Turn: " + next_player)
-        self.send_message(self, "next_turn:" + next_player)
-        self.send_message("play", next_player)
+        self.send_message(self,
+                          network_command.NEXT_TURN +
+                          network_command.DELIMINATOR + next_player)
+        self.send_message(network_command.PLAY, next_player)
 
     def send_player_status(self):
         """Inform all clients of the game status (player names with
         the number of remaining dice).
         """
         player_data = self.factory.game.get_player_status()
-        message = ("player_status:" +
+        message = (network_command.PLAYER_STATUS + network_command.DELIMINATOR +
                    ",".join(p + "=" + str(dice) for p, dice in player_data))
 
         # Send the message

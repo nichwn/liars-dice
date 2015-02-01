@@ -5,6 +5,7 @@ Functionality common to all players.
 """
 
 from twisted.protocols.basic import LineReceiver
+from liars_dice import network_command
 
 
 class Player(LineReceiver):
@@ -22,7 +23,7 @@ class Player(LineReceiver):
     def lineReceived(self, line):
 
         # Parse message
-        message = line.split(":")
+        message = line.split(network_command.DELIMINATOR)
         command = message[0]
         if len(message) == 1:
             extra = None
@@ -30,36 +31,36 @@ class Player(LineReceiver):
             extra = message[1]
 
         # Delegate to the appropriate method
-        if command == "hand":
+        if command == network_command.PLAYER_HAND:
             self._received_hand(extra)
             self.notification_hand()
-        elif command == "player_status":
+        elif command == network_command.PLAYER_STATUS:
             player_data = [(username, int(amount)) for username, amount in
                            (player.split("=") for player in extra.split(","))]
             self.notification_player_status(player_data)
-        elif command == "next_turn":
+        elif command == network_command.NEXT_TURN:
             self.notification_next_turn(extra)
-        elif command == "left":
+        elif command == network_command.PLAYER_LEFT:
             self.notification_player_left(extra)
-        elif command == "joined":
+        elif command == network_command.PLAYER_JOINED:
             self.notification_player_joined(extra)
-        elif command == "username":
+        elif command == network_command.USERNAME:
             self.allow_username_change = True
             self.notification_name_request()
-        elif command == "play":
+        elif command == network_command.PLAY:
             self.notification_play_request()
-        elif command == "bet":
+        elif command == network_command.BET:
             face, number = [int(n) for n in extra.split(",")]
             self.notification_bet(face, number)
-        elif command == "spot_on":
+        elif command == network_command.SPOT_ON:
             self.notification_spot_on()
-        elif command == "liar":
+        elif command == network_command.LIAR:
             self.notification_spot_on()
-        elif command == "player_lost_die":
+        elif command == network_command.PLAYER_LOST_DIE:
             self.notification_player_lost_die(extra)
-        elif command == "new_round":
+        elif command == network_command.NEXT_ROUND:
             self.notification_new_round()
-        elif command == "winner":
+        elif command == network_command.WINNER:
             self.notification_winner(extra)
 
     def send_name(self, username):
@@ -70,23 +71,27 @@ class Player(LineReceiver):
             :
         """
         if self.allow_username_change:
-            self.sendLine("username:" + username.replace(":", ""))
+            self.sendLine(
+                network_command.USERNAME + network_command.DELIMINATOR +
+                username.replace(
+                    network_command.DELIMINATOR, ""))
             self.username = username
             self.allow_username_change = False
 
     def send_liar(self):
         """Send the server a "Liar" action."""
-        self.sendLine("liar")
+        self.sendLine(network_command.LIAR)
 
     def send_spot_on(self):
         """Send the server a "Spot On" action."""
-        self.sendLine("spot_on")
+        self.sendLine(network_command.SPOT_ON)
 
     def send_bet(self, face, number):
         """Send the server the player's bet,where face (int) is the die face
         and number (int) is the number of dice predicted.
         """
-        self.sendLine("bet:" + str(face) + "," + str(number))
+        self.sendLine(network_command.BET + network_command.DELIMINATOR + str(
+            face) + "," + str(number))
 
     def send_start(self):
         """Send a message to the server to start the game.
@@ -95,7 +100,7 @@ class Player(LineReceiver):
         two players who have joined the game.
         """
         # Checking the conditions for starting the game is done server-side
-        self.sendLine("start")
+        self.sendLine(network_command.START)
 
     def _received_hand(self, hand):
         # Update a player's hand based on server information.

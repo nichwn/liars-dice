@@ -55,7 +55,7 @@ class Player(LineReceiver):
         elif command == network_command.SPOT_ON:
             self.notification_spot_on()
         elif command == network_command.LIAR:
-            self.notification_spot_on()
+            self.notification_liar()
         elif command == network_command.PLAYER_LOST_DIE:
             self.notification_player_lost_die(extra)
         elif command == network_command.NEXT_ROUND:

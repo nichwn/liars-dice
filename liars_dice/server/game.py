@@ -53,13 +53,19 @@ class Hand:
         """Return a sequence of all the die values in a hand.
 
         Returns:
-            An integer with the face value of all the dice.
+            A list of integers with the face value of all the dice.
         """
-        return (die.face for die in self.hand)
+        return [die.face for die in self.hand]
 
 
 class GameStatus:
-    """Provide functionality for manipulating the game's status."""
+    """Provide functionality for manipulating the game's status.
+
+    Args:
+        player_ord: A list of players in turn order
+        previous_bet: A tuple of 2 integers, indicating the die face and
+            number of the previous bet.
+    """
 
     def __init__(self):
         self._players = {}
@@ -148,6 +154,16 @@ class GameStatus:
         """
         i = (self._turn_player_index - 1) % len(self.player_order)
         return self.player_order[i]
+
+    def get_player_hands(self):
+        """Provide information on player hands.
+
+        Returns:
+            A generator of (string, list of integers) tuples, of player
+            usernames and the face value of the dice in their hand.
+        """
+        return ((player, self._players[player].die_face())
+                for player in self.player_order)
 
     def get_player_status(self):
         """Provide information on the current game state.

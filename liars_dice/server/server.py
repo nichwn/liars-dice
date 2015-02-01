@@ -147,20 +147,25 @@ class LiarsGame(LineReceiver):
 
     def next_round(self):
         """Roll a new round of the game."""
+        # Announce new round
         self.factory.game.next_round()
         log.msg("New round")
         self.send_message(network_command.NEXT_ROUND)
 
+        # Update the board situation
+        self.send_player_status()
+        self.send_player_hand()
+
+        # Reset the previous bet
+        self.factory.game.previous_bet = None
+
+        # Announce the player whose turn it is
         next_player = self.factory.game.turn_player()
         log.msg("Start of Round Player: " + next_player)
-        self.send_player_status()
         self.send_message(
             network_command.NEXT_TURN + network_command.DELIMINATOR +
             next_player)
         self.send_message(network_command.PLAY, next_player)
-
-        # Reset the previous bet
-        self.factory.game.previous_bet = None
 
     def next_turn(self):
         """Inform clients of the next player's turn."""
@@ -170,6 +175,13 @@ class LiarsGame(LineReceiver):
         self.send_message(network_command.NEXT_TURN +
                           network_command.DELIMINATOR + next_player)
         self.send_message(network_command.PLAY, next_player)
+
+    def send_player_hand(self):
+        """Inform all clients of their hand."""
+        for player, hand in self.factory.game.get_player_hands():
+            self.send_message(network_command.PLAYER_HAND +
+                              network_command.DELIMINATOR + ",".join([str(x) for x in hand]),
+                              [player])
 
     def send_player_status(self):
         """Inform all clients of the game status."""

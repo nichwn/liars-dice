@@ -46,6 +46,7 @@ class ConsoleHuman(Player):
             print ("Otherwise, provide two space delimited numbers, where the "
                    "first is the die face, and the second the number "
                    "predicted.")
+            print "Your hand: ", self.hand
             self._display_instructions = False
 
         invalid = True

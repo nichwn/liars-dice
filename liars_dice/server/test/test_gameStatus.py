@@ -79,7 +79,7 @@ class TestGameStatus(TestCase):
         self.assertEqual(self.status._dice_count, collections.Counter(),
                          "incorrect dice tally for no players")
 
-    def test_reroll_all(self):
+    def test_roll_all(self):
         old_count = len(self.status._players["test"].hand)
         self.status.roll_all()
         self.assertIsInstance(self.status._players["test"], Hand,
@@ -88,7 +88,7 @@ class TestGameStatus(TestCase):
         self.assertEqual(new_count, old_count, "hand size changed")
         self.assertEqual(self.status._dice_count, collections.Counter(
             self.status._players["test"].die_face()), "incorrect dice tally "
-                                                     "for single player")
+                                                      "for single player")
 
     def test_get_winner(self):
         self.status._players["test2"] = Hand()
@@ -170,3 +170,13 @@ class TestGameStatus(TestCase):
         self.assertEqual(self.status.handle_spot_on(), "test",
                          "Wrong player (incorrect guess)")
 
+    def test_get_player_hands(self):
+        self.status.add_player("test2")
+        self.status._players["test"].hand = [Die()]
+        self.status._players["test"].hand[0].face = 1
+        self.status._players["test2"].hand = [Die(), Die()]
+        self.status._players["test2"].hand[0].face = 2
+        self.status._players["test2"].hand[1].face = 3
+        test_result = list(self.status.get_player_hands())
+        expected_result = [("test", [1]), ("test2", [2, 3])]
+        self.assertEqual(test_result, expected_result, "incorrect die values")

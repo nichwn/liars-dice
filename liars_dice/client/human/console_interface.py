@@ -3,6 +3,7 @@
 An interface for a human player to play the game.
 
 """
+import re
 from twisted.internet import reactor
 from twisted.internet.protocol import ClientFactory
 from liars_dice.client.player import Player
@@ -40,11 +41,11 @@ class ConsoleHuman(Player):
 
         invalid = True
         while invalid:
-            play = raw_input("Command: ").lower()
-            if play.startswith("liar"):
+            play = raw_input("Command: ")
+            if re.match('liar!?', play, re.IGNORECASE):
                 self.send_liar()
                 invalid = False
-            elif play.startswith("spot on"):
+            elif re.match('spot on!?', play, re.IGNORECASE):
                 self.send_spot_on()
                 invalid = False
             elif len(play.split()) == 2:

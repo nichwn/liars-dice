@@ -118,30 +118,30 @@ class TestGameStatus(TestCase):
                          "incorrect previous player - should be 'test'")
 
     def test_handle_bet(self):
-        self.status._previous_bet = (1, 5)
+        self.status.previous_bet = (1, 5)
         self.status.handle_bet(2, 5)
-        self.assertEqual(self.status._previous_bet, (2, 5),
+        self.assertEqual(self.status.previous_bet, (2, 5),
                          "not updated when the face is higher")
 
-        self.status._previous_bet = (3, 3)
+        self.status.previous_bet = (3, 3)
         self.status.handle_bet(3, 4)
-        self.assertEqual(self.status._previous_bet, (3, 4),
+        self.assertEqual(self.status.previous_bet, (3, 4),
                          "not updated when the number is higher and the face "
                          "is the same")
 
-        self.status._previous_bet = (3, 3)
+        self.status.previous_bet = (3, 3)
         self.status.handle_bet(2, 4)
-        self.assertEqual(self.status._previous_bet, (2, 4),
+        self.assertEqual(self.status.previous_bet, (2, 4),
                          "not updated when the number is higher and the face "
                          "is lower")
 
-        self.status._previous_bet = (3, 3)
+        self.status.previous_bet = (3, 3)
         result = self.status.handle_bet(3, 3)
         self.assertIs(result, False, "should not accept the same bet")
 
-        self.status._previous_bet = (3, 3)
+        self.status.previous_bet = (3, 3)
         self.status.handle_bet(2, 3)
-        self.assertEqual(self.status._previous_bet, (3, 3),
+        self.assertEqual(self.status.previous_bet, (3, 3),
                          "accepted an invalid bet")
 
     def test_handle_liar(self):

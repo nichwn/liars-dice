@@ -148,15 +148,19 @@ class LiarsGame(LineReceiver):
     def next_round(self):
         """Roll a new round of the game."""
         self.factory.game.next_round()
-        next_player = self.factory.game.turn_player()
         log.msg("New round")
         self.send_message(network_command.NEXT_ROUND)
+
+        next_player = self.factory.game.turn_player()
         log.msg("Start of Round Player: " + next_player)
         self.send_player_status()
         self.send_message(
             network_command.NEXT_TURN + network_command.DELIMINATOR +
             next_player)
         self.send_message(network_command.PLAY, next_player)
+
+        # Reset the previous bet
+        self.factory.game.previous_bet = None
 
     def next_turn(self):
         """Inform clients of the next player's turn."""

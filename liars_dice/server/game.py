@@ -67,7 +67,7 @@ class GameStatus:
         self._round_player_index = -1  # used in round-related methods
         self._turn_player_index = -1  # used in round and turn-related methods
         self._dice_count = collections.Counter()
-        self._previous_bet = None  # after bets are made, will be (face, number)
+        self.previous_bet = None  # after bets are made, will be (face, number)
 
     def remove_die(self, player):
         """Remove a die from the player's hand."""
@@ -173,8 +173,8 @@ class GameStatus:
             A Boolean indicating whether the bet was valid.
         """
         # Grab previous bet
-        if self._previous_bet is not None:
-            old_face, old_number = self._previous_bet
+        if self.previous_bet is not None:
+            old_face, old_number = self.previous_bet
         else:
             # allows any combination of face and number that are in the
             # valid range
@@ -185,7 +185,7 @@ class GameStatus:
         allowed_bet = (number > old_number or
                        (face > old_face and number == old_number))
         if valid_range and allowed_bet:
-            self._previous_bet = (face, number)
+            self.previous_bet = (face, number)
             return True
         else:
             return False
@@ -199,9 +199,9 @@ class GameStatus:
         Raises:
             RuntimeError: No previous bet has been made.
         """
-        if self._previous_bet is None:
+        if self.previous_bet is None:
             raise RuntimeError("No previous bet has been made.")
-        face, number = self._previous_bet
+        face, number = self.previous_bet
 
         if number <= self._dice_count[face]:
             player = self.turn_player()
@@ -220,9 +220,9 @@ class GameStatus:
         Raises:
             RuntimeError: No previous bet has been made.
         """
-        if self._previous_bet is None:
+        if self.previous_bet is None:
             raise RuntimeError("No previous bet has been made.")
-        face, number = self._previous_bet
+        face, number = self.previous_bet
 
         if number != self._dice_count[face]:
             player = self.turn_player()

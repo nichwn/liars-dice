@@ -8,7 +8,11 @@ import collections
 
 
 class Die:
-    """Manage a single die."""
+    """Manage a single die.
+
+    Attributes:
+        face: An integer between 1 - 6 (inclusive) with the die's value.
+    """
 
     def __init__(self):
         self.face = None  # properly assigned in roll
@@ -20,7 +24,11 @@ class Die:
 
 
 class Hand:
-    """Manage a player's hand."""
+    """Manage a player's hand.
+
+    Attributes:
+        hand: A list containing the dice in a player's hand.
+    """
     INITIAL_HAND_SIZE = 6
 
     def __init__(self):
@@ -29,16 +37,24 @@ class Hand:
             self.hand.append(Die())
 
     def have_die(self):
-        """Return True if there is at least one die in the hand, else False."""
+        """Determine whether the player has at least 1 die in their hand.
+
+        Returns:
+            A Boolean indicating whether the player has at least 1 die or not.
+        """
         return len(self.hand) != 0
 
-    def reroll(self):
-        """Reroll the hand."""
+    def roll(self):
+        """Roll all the dice in the hand."""
         for die in self.hand:
             die.roll()
 
     def die_face(self):
-        """Return a sequence of all the die values in a hand."""
+        """Return a sequence of all the die values in a hand.
+
+        Returns:
+            An integer with the face value of all the dice.
+        """
         return (die.face for die in self.hand)
 
 
@@ -46,94 +62,119 @@ class GameStatus:
     """Provide functionality for manipulating the game's status."""
 
     def __init__(self):
-        self.players = {}
+        self._players = {}
         self.player_order = []
-        self.round_player_index = -1  # handled in round-related methods
-        self.turn_player_index = -1  # handled in round and turn-related methods
-        self.dice_count = collections.Counter()
-        self.previous_bet = None  # after bets are made, will be (face, number)
+        self._round_player_index = -1  # used in round-related methods
+        self._turn_player_index = -1  # used in round and turn-related methods
+        self._dice_count = collections.Counter()
+        self._previous_bet = None  # after bets are made, will be (face, number)
 
     def remove_die(self, player):
         """Remove a die from the player's hand."""
-        removed = self.players[player].hand.pop()
-        self.dice_count -= collections.Counter((removed.face,))
-        die_remains = self.players[player].have_die()
+        removed = self._players[player].hand.pop()
+        self._dice_count -= collections.Counter((removed.face,))
+        die_remains = self._players[player].have_die()
 
         # Remove eliminated players
         if not die_remains:
             self.remove_player(player)
 
     def add_player(self, player):
-        """Add a player to the game."""
-        self.players[player] = Hand()
+        """Add a player to the game.
+
+        Args:
+            player: A string with the name of the player to be added.
+        """
+        self._players[player] = Hand()
         self.player_order += (player,)
-        self.dice_count += collections.Counter(self.players[player].die_face())
+        self._dice_count += collections.Counter(self._players[player].die_face())
 
     def remove_player(self, player):
-        """Remove a player from the game."""
-        self.dice_count -= collections.Counter(self.players[player].die_face())
+        """Remove a player from the game.
+
+        Args:
+            player: A string with the name of the player to be removed.
+        """
+        self._dice_count -= collections.Counter(self._players[player].die_face())
 
         # Adjust to handle turn being removed
         if self.turn_player() == player:
-            self.turn_player_index -= 1
+            self._turn_player_index -= 1
 
         # Round players
-        round_index = self.round_player_index % len(self.player_order)
+        round_index = self._round_player_index % len(self.player_order)
         if self.player_order[round_index] == player:
-            self.round_player_index -= 1
+            self._round_player_index -= 1
 
-        del self.players[player]
+        del self._players[player]
         order_index = self.player_order.index(player)
         self.player_order = (self.player_order[:order_index] +
-                             self.player_order[order_index + 1:])
+                              self.player_order[order_index + 1:])
 
-    def reroll_all(self):
-        """Reroll the hands of all players."""
-        self.dice_count = collections.Counter()
-        for hand in self.players.itervalues():
-            hand.reroll()
-            self.dice_count += collections.Counter(hand.die_face())
+    def roll_all(self):
+        """Roll the hands of all players."""
+        self._dice_count = collections.Counter()
+        for hand in self._players.itervalues():
+            hand.roll()
+            self._dice_count += collections.Counter(hand.die_face())
 
     def get_winner(self):
-        """Return the player who has won the game, if any, else None."""
-        remaining = self.players.keys()
+        """Determine the winner of the game, if any.
+
+        Returns:
+            A string with the name of the winning player, or None if there is no
+            such player.
+        """
+        remaining = self._players.keys()
         if len(remaining) == 1:
             return remaining[0]
         else:
             return None
 
     def turn_player(self):
-        """Return the current turn player (string, or None if the game has
-        ended).
+        """Determine the player whose turn it is.
+
+        Returns:
+            A string with the name of the current turn player.
         """
-        i = self.turn_player_index % len(self.player_order)
+        i = self._turn_player_index % len(self.player_order)
         return self.player_order[i]
 
     def turn_player_previous(self):
-        """Return the previous turn player (string, or None if the game has
-        ended).
+        """Determine the player whose turn it was last turn.
+
+        Returns:
+            A string with the name of the previous turn player.
         """
-        i = (self.turn_player_index - 1) % len(self.player_order)
+        i = (self._turn_player_index - 1) % len(self.player_order)
         return self.player_order[i]
 
     def get_player_status(self):
-        """Return a list of tuples, where the tuple is a player's name
-        followed by the number of dice they have.
+        """Provide information on the current game state.
 
-        The order is in turn order, but the first player does not
-        necessarily correspond with the next player to play.
+        Returns:
+            A list of tuples, where the tuple is a player's name
+            followed by the number of dice they have.
+
+            The order is in turn order, but the first player does not
+            necessarily correspond with the next player to play.
         """
-        return [(player, len(self.players[player].hand))
+        return [(player, len(self._players[player].hand))
                 for player in self.player_order]
 
     def handle_bet(self, face, number):
         """Resolve bets made by the turn player.
 
-        Return True if the bet is valid, else False.
+        Args:
+            face: An integer with the die value bet.
+            number: An integer with the number of dice bet.
+
+        Returns:
+            A Boolean indicating whether the bet was valid.
         """
         # Grab previous bet
-        if self.previous_bet is not None:
-            old_face, old_number = self.previous_bet
+        if self._previous_bet is not None:
+            old_face, old_number = self._previous_bet
         else:
             old_face, old_number = (1, 0)
 
@@ -142,7 +183,7 @@ class GameStatus:
         allowed_bet = (number > old_number or
                        (face > old_face and number == old_number))
         if correct_range and allowed_bet:
-            self.previous_bet = (face, number)
+            self._previous_bet = (face, number)
             return True
         else:
             return False
@@ -150,10 +191,11 @@ class GameStatus:
     def handle_liar(self):
         """Resolve liar declarations made by the turn player.
 
-        Return the name of the losing player.
+        Returns:
+            A string with the name of the player who lost a die.
         """
-        face, number = self.previous_bet
-        if number <= self.dice_count[face]:
+        face, number = self._previous_bet
+        if number <= self._dice_count[face]:
             player = self.turn_player()
         else:
             player = self.turn_player_previous()
@@ -164,10 +206,11 @@ class GameStatus:
     def handle_spot_on(self):
         """Handle spot on declarations made by the turn player.
 
-        Return the name of the losing player.
+        Returns:
+            A string with the name of the player who lost a die.
         """
-        face, number = self.previous_bet
-        if number != self.dice_count[face]:
+        face, number = self._previous_bet
+        if number != self._dice_count[face]:
             player = self.turn_player()
         else:
             player = self.turn_player_previous()
@@ -176,10 +219,10 @@ class GameStatus:
         return player
 
     def next_round(self):
-        """Moves play to the next round."""
-        self.round_player_index += 1
-        self.turn_player_index = self.round_player_index
+        """Move play to the next round."""
+        self._round_player_index += 1
+        self._turn_player_index = self._round_player_index
 
     def next_turn(self):
         """Move play to the next turn."""
-        self.turn_player_index += 1
+        self._turn_player_index += 1

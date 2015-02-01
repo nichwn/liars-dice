@@ -13,12 +13,18 @@ class Player(LineReceiver):
 
     This class is intended to be subclassed by more specific player
     instances, such as humans or an AI instance.
+
+    Attributes:
+        username: A string with the player's name, or None if the player does
+            not have one.
+        hand: A list with the player's hand, or None if the player does not
+            have one.
     """
 
     def __init__(self):
         self.username = None
         self.hand = None
-        self.allow_username_change = True
+        self._allow_username_change = True
 
     def lineReceived(self, line):
 
@@ -45,7 +51,7 @@ class Player(LineReceiver):
         elif command == network_command.PLAYER_JOINED:
             self.notification_player_joined(extra)
         elif command == network_command.USERNAME:
-            self.allow_username_change = True
+            self._allow_username_change = True
             self.notification_name_request()
         elif command == network_command.PLAY:
             self.notification_play_request()
@@ -64,19 +70,19 @@ class Player(LineReceiver):
             self.notification_winner(extra)
 
     def send_name(self, username):
-        """Send a username (string) to attempt to register with to the
-        server.
+        """Register the player's username with the server.
 
-        The following characters will be removed from the username if present:
-            :
+        Args:
+            username: A string with the player's username. Colons are not
+                permitted in the username and will be automatically removed.
         """
-        if self.allow_username_change:
+        if self._allow_username_change:
             self.sendLine(
                 network_command.USERNAME + network_command.DELIMINATOR +
                 username.replace(
                     network_command.DELIMINATOR, ""))
             self.username = username
-            self.allow_username_change = False
+            self._allow_username_change = False
 
     def send_liar(self):
         """Send the server a "Liar" action."""
@@ -87,8 +93,11 @@ class Player(LineReceiver):
         self.sendLine(network_command.SPOT_ON)
 
     def send_bet(self, face, number):
-        """Send the server the player's bet,where face (int) is the die face
-        and number (int) is the number of dice predicted.
+        """Send the server the player's bet.
+
+        Args:
+            face: An integer with the die value bet.
+            number: An integer with the number of dice bet.
         """
         self.sendLine(network_command.BET + network_command.DELIMINATOR + str(
             face) + "," + str(number))
@@ -96,8 +105,8 @@ class Player(LineReceiver):
     def send_start(self):
         """Send a message to the server to start the game.
 
-        Will only work if the player is the lead player, and there are at least
-        two players who have joined the game.
+        This will have no effect if the player is not the lead player, or
+        if there are not at least two players participating in the game.
         """
         # Checking the conditions for starting the game is done server-side
         self.sendLine(network_command.START)
@@ -111,12 +120,13 @@ class Player(LineReceiver):
     def notification_player_status(self, player_data):
         """Respond to being provided with game status.
 
-        player_data is a list of tuples composed of player names and the number
-        of dice they possess.
+        Intended to be overridden by subclasses (optional).
 
-        The players are in turn order, but the first entry does not
-        necessarily correspond to the next player to play (see
-        notification_next_turn instead).
+        Args:
+            player_data: A list of tuples composed of player names with the
+                number of dice they possess. The players are in turn order,
+                but the first entry does not necessarily correspond to the
+                whose turn it is (see notification_next_turn instead).
         """
         pass
 
@@ -137,74 +147,88 @@ class Player(LineReceiver):
     def notification_next_turn(self, player):
         """Respond to the next turn being declared.
 
-        player (string) is the name of the next player to act.
+        Intended to be overridden by subclasses (optional).
 
-        Intended to be overridden by subclasses.
+        Args:
+            player: A string with the player's username whose turn it is.
         """
         pass
 
     def notification_hand(self):
         """Respond to receiving a new hand.
 
-        Intended to be overridden by subclasses.
+        Intended to be overridden by subclasses (optional).
         """
         pass
 
     def notification_bet(self, face, number):
         """Respond to the current turn player making a standard bet.
 
-        face (int) is the face of the die value, and number (int) is the
-        number of dice predicted.
+        Intended to be overridden by subclasses (optional).
 
-        Intended to be overridden by subclasses.
+        Args:
+            face: An integer with the die value bet.
+            number: An integer with the number of dice bet.
         """
         pass
 
     def notification_spot_on(self):
-        """Respond to the current player making a "Spot On" bet.
+        """Respond to the current turn player making a "Spot On" bet.
 
-        Intended to be overridden by subclasses.
+        Intended to be overridden by subclasses (optional).
         """
         pass
 
     def notification_liar(self):
-        """Respond to the current player making a "Liar" bet.
+        """Respond to the current turn player making a "Liar" bet.
 
-        Intended to be overridden by subclasses.
+        Intended to be overridden by subclasses (optional).
         """
         pass
 
     def notification_player_lost_die(self, player):
-        """Respond to a player (string) losing a die.
+        """Respond to a player losing a die.
 
-        Intended to be overridden by subclasses.
+        Intended to be overridden by subclasses (optional).
+
+        Args:
+            player: A string with the player's username whose turn it is.
         """
         pass
 
     def notification_player_left(self, player):
-        """Respond to a player (string) leaving the game.
+        """Respond to a player leaving the game.
 
-        Intended to be overridden by subclasses.
+        Intended to be overridden by subclasses (optional).
+
+        Args:
+            player: A string with the player's username whose turn it is.
         """
         pass
 
     def notification_player_joined(self, player):
-        """Respond to a player (string) joining the game.
+        """Respond to a player joining the game.
 
-        Intended to be overridden by subclasses.
+        Intended to be overridden by subclasses (optional).
+
+        Args:
+            player: A string with the player's username whose turn it is.
         """
         pass
 
     def notification_new_round(self):
         """Respond to a new round commencing.
 
-        Intended to be overridden by subclasses.
+        Intended to be overridden by subclasses (optional).
         """
         pass
 
     def notification_winner(self, player):
         """Respond to a player (string) winning the game.
 
-        Intended to be overridden by subclasses.
+        Args:
+            player: A string with the player's username whose turn it is.
+
+        Intended to be overridden by subclasses (optional).
         """
         pass

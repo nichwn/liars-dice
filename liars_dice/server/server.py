@@ -17,10 +17,11 @@ class LiarsGame(LineReceiver):
     """Handle client communication and game running."""
 
     def __init__(self):
-        self.username = None
+        self._username = None
 
     def lineReceived(self, line):
-        """Handle receiving messages from clients."""
+
+        # Parse the received message
         message = line.split(network_command.DELIMINATOR)
         command = message[0]
         if len(message) == 1:
@@ -35,7 +36,7 @@ class LiarsGame(LineReceiver):
             self._received_start()
 
         # These commands can only be performed by the turn player
-        elif self.factory.game.turn_player() == self.username:
+        elif self.factory.game.turn_player() == self._username:
             if command == network_command.LIAR:
                 self.send_message(line)
                 log.msg("Turn player made a 'Liar' accusation.")
@@ -60,29 +61,33 @@ class LiarsGame(LineReceiver):
                 self.next_turn()
 
     def connectionMade(self):
-        """Handle making a connection to a client, and requesting a username."""
+
+        # Request username
         if not self.factory.game_started:
             self.sendLine(network_command.USERNAME)
 
     def connectionLost(self, reason=connectionDone):
-        """Handle connection failures."""
-        if self.username is not None:
-            self.factory.game.remove_player(self.username)
-            del self.factory.clients[self.username]
-            log.msg(self.username + " disconnected from the server.")
+        if self._username is not None:
+            self.factory.game.remove_player(self._username)
+            del self.factory.clients[self._username]
+            log.msg(self._username + " disconnected from the server.")
             self.send_message(network_command.PLAYER_LEFT +
-                              network_command.DELIMINATOR + self.username)
+                              network_command.DELIMINATOR + self._username)
             self.roll_new_round()
 
     def _received_username(self, username):
-        """Set the client's username."""
-        if username not in self.factory.clients and self.username is None:
+        """Set the client's username. Usernames cannot be changed once set.
+
+        Args:
+            username: A string with the username of the client.
+        """
+        if username not in self.factory.clients and self._username is None:
             self.factory.clients[username] = self
             self.factory.game.add_player(username)
             log.msg(username + " joined the game.")
             self.send_message(network_command.PLAYER_JOINED +
                               network_command.DELIMINATOR + username)
-            self.username = username
+            self._username = username
             self.send_player_status()
         elif username in self.factory.clients:
             log.msg("A client attempted to join as '" + username +
@@ -91,12 +96,12 @@ class LiarsGame(LineReceiver):
 
     def _received_start(self):
         """Start the game."""
-        i = self.factory.game.player_order.index(self.username)
+        i = self.factory.game.player_order.index(self._username)
 
         # Only the first, still active, player can start the game
         # There must be at least 2 players
         if i == 0 and len(self.factory.game.player_order) >= 2:
-            log.msg("Game started on the request of: " + self.username)
+            log.msg("Game started on the request of: " + self._username)
             self.factory.game_started = True
             self.roll_new_round()
         else:
@@ -109,9 +114,11 @@ class LiarsGame(LineReceiver):
     def send_message(self, message, client_usernames=None):
         """Send a message to all connected clients.
 
-        message (string) is the message to send, and client_usernames is a
-        list of all of the usernames of all clients to whom the messages are to
-        be sent. To send the message to all clients, pass None instead.
+        Args:
+            message: A string with the message to be sent.
+            client_usernames: A list of all the usernames of the clients to
+                whom the messages should be sent to, or None if the message
+                should be sent to all clients.
         """
         for username, client in self.factory.clients.items():
             if client_usernames is None or username in client_usernames:
@@ -131,9 +138,7 @@ class LiarsGame(LineReceiver):
         self.send_message(network_command.PLAY, next_player)
 
     def next_turn(self):
-        """Inform clients of the next player's turn, where next_player
-        (string) is the player whose turn it is.
-        """
+        """Inform clients of the next player's turn."""
         self.factory.game.next_turn()
         next_player = self.factory.game.turn_player()
         log.msg("Next Turn: " + next_player)
@@ -143,9 +148,7 @@ class LiarsGame(LineReceiver):
         self.send_message(network_command.PLAY, next_player)
 
     def send_player_status(self):
-        """Inform all clients of the game status (player names with
-        the number of remaining dice).
-        """
+        """Inform all clients of the game status."""
         player_data = self.factory.game.get_player_status()
         message = (network_command.PLAYER_STATUS + network_command.DELIMINATOR +
                    ",".join(p + "=" + str(dice) for p, dice in player_data))

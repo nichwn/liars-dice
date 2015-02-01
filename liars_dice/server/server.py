@@ -65,6 +65,8 @@ class LiarsGame(LineReceiver):
         # Request username
         if not self.factory.game_started:
             self.sendLine(network_command.USERNAME)
+        else:
+            self.transport.loseConnection()
 
     def connectionLost(self, reason=connectionDone):
         if self._username is not None:

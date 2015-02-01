@@ -14,7 +14,12 @@ class ConsoleHuman(Player):
 
     def __init__(self):
         Player.__init__(self)
+
+        # Whether the player can start the game - toggled in another function
+        # if applicable
         self._display_start_prompt = False
+
+        self._display_instructions = True  # display command instructions
 
     def notification_player_status(self, player_data):
 
@@ -34,11 +39,14 @@ class ConsoleHuman(Player):
         print
 
     def notification_play_request(self):
-        print "It's your turn. Choose a play to make."
-        print ("Type 'Liar!' to make a liar declaration, or 'Spot On!' for a "
-               "spot on declaration.")
-        print ("Otherwise, provide two space delimited numbers, where the "
-               "first is the die face, and the second the number predicted.")
+        if self._display_instructions:
+            print "It's your turn. Choose a play to make."
+            print ("Type 'Liar!' to make a liar declaration, or 'Spot On!' "
+                   "for a spot on declaration.")
+            print ("Otherwise, provide two space delimited numbers, where the "
+                   "first is the die face, and the second the number "
+                   "predicted.")
+            self._display_instructions = False
 
         invalid = True
         while invalid:
@@ -68,6 +76,8 @@ class ConsoleHuman(Player):
             msg += "'s"
         msg += " turn."
         print msg
+
+        self._display_instructions = True
 
     def notification_hand(self):
         print "New hand received:\t", self.hand
@@ -113,6 +123,8 @@ class ConsoleHuman(Player):
 
     def notification_new_round(self):
         print "\nA new round has begun."
+
+        self._display_instructions = True
 
     def notification_winner(self, player):
         print "\n" + player + " has won the game."

@@ -176,13 +176,15 @@ class GameStatus:
         if self._previous_bet is not None:
             old_face, old_number = self._previous_bet
         else:
-            old_face, old_number = (1, 0)
+            # allows any combination of face and number that are in the
+            # valid range
+            old_face, old_number = (-1, -1)
 
         # Handle the current bet
-        correct_range = number >= 1 and 1 <= face <= 6
+        valid_range = number >= 1 and 1 <= face <= 6
         allowed_bet = (number > old_number or
                        (face > old_face and number == old_number))
-        if correct_range and allowed_bet:
+        if valid_range and allowed_bet:
             self._previous_bet = (face, number)
             return True
         else:
@@ -193,8 +195,14 @@ class GameStatus:
 
         Returns:
             A string with the name of the player who lost a die.
+
+        Raises:
+            RuntimeError: No previous bet has been made.
         """
+        if self._previous_bet is None:
+            raise RuntimeError("No previous bet has been made.")
         face, number = self._previous_bet
+
         if number <= self._dice_count[face]:
             player = self.turn_player()
         else:
@@ -208,8 +216,14 @@ class GameStatus:
 
         Returns:
             A string with the name of the player who lost a die.
+
+        Raises:
+            RuntimeError: No previous bet has been made.
         """
+        if self._previous_bet is None:
+            raise RuntimeError("No previous bet has been made.")
         face, number = self._previous_bet
+
         if number != self._dice_count[face]:
             player = self.turn_player()
         else:

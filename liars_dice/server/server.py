@@ -37,21 +37,8 @@ class LiarsGame(LineReceiver):
 
         # These commands can only be performed by the turn player
         elif self.factory.game.turn_player() == self._username:
-            if command == network_command.LIAR:
-                self.send_message(line)
-                log.msg("Turn player made a 'Liar' accusation.")
-                losing_player = self.factory.game.handle_liar()
-                self.send_message(network_command.PLAYER_LOST_DIE +
-                                  network_command.DELIMINATOR + losing_player)
-                self.next_turn()
-
-            elif command == network_command.SPOT_ON:
-                self.send_message(line)
-                log.msg("Turn player predicted 'spot_on'.")
-                losing_player = self.factory.game.handle_spot_on()
-                self.send_message(network_command.PLAYER_LOST_DIE +
-                                  network_command.DELIMINATOR + losing_player)
-                self.next_turn()
+            if command in (network_command.SPOT_ON, network_command.LIAR):
+                self.handle_non_bet(command)
 
             elif command == network_command.BET:
                 self.send_message(line)
@@ -125,6 +112,32 @@ class LiarsGame(LineReceiver):
         for username, client in self.factory.clients.items():
             if client_usernames is None or username in client_usernames:
                 client.sendLine(message)
+
+    def handle_non_bet(self, command):
+        """Manage player actions that do not involve betting.
+
+        Args:
+            command: network_command.SPOT_ON or network_command.LIAR
+                indicating whether the action is a 'Spot On' action, or a
+                'Liar' one.
+        """
+        try:
+            if command == network_command.SPOT_ON:
+                losing_player = self.factory.game.handle_spot_on()
+            else:
+                losing_player = self.factory.game.handle_liar()
+
+            self.send_message(command)
+            log.msg("Turn player made accusation: " + command)
+
+            self.send_message(network_command.PLAYER_LOST_DIE +
+                              network_command.DELIMINATOR + losing_player)
+            self.next_turn()
+
+        except RuntimeError:
+            # No previous bet
+            self.send_message(network_command.PLAY,
+                              self.factory.game.turn_player())
 
     def roll_new_round(self):
         """Roll a new round of the game."""

@@ -51,8 +51,7 @@ class ConsoleHuman(Player):
                 invalid = False
             elif len(play.split()) == 2:
                 try:
-                    face, number = ((int(face), int(number))
-                                    for face, number in play.split())
+                    face, number = [int(n) for n in play.split()]
                     self.send_bet(face, number)
                     invalid = False
                 except ValueError:

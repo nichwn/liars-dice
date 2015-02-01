@@ -43,7 +43,7 @@ class LiarsGame(LineReceiver):
             elif command == network_command.BET:
                 self.send_message(line)
                 log.msg("Turn player made the prediction: " + line)
-                face, number = extra.split(",")
+                face, number = [int(x) for x in extra.split(",")]
                 self.factory.game.handle_bet(face, number)
                 self.next_turn()
 
@@ -157,8 +157,7 @@ class LiarsGame(LineReceiver):
         self.factory.game.next_turn()
         next_player = self.factory.game.turn_player()
         log.msg("Next Turn: " + next_player)
-        self.send_message(self,
-                          network_command.NEXT_TURN +
+        self.send_message(network_command.NEXT_TURN +
                           network_command.DELIMINATOR + next_player)
         self.send_message(network_command.PLAY, next_player)
 

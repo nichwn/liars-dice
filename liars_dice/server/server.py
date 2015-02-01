@@ -41,11 +41,17 @@ class LiarsGame(LineReceiver):
                 self.handle_non_bet(command)
 
             elif command == network_command.BET:
-                self.send_message(line)
-                log.msg("Turn player made the prediction: " + line)
                 face, number = [int(x) for x in extra.split(",")]
-                self.factory.game.handle_bet(face, number)
-                self.next_turn()
+
+                if self.factory.game.handle_bet(face, number):
+                    log.msg("Turn player made the prediction: " + line)
+                    self.send_message(line)
+                    self.next_turn()
+                else:
+                    log.msg("Turn player attempted to predict: " + line +
+                            " - but it was invalid")
+                    self.send_message(network_command.PLAY,
+                                      self.factory.game.turn_player())
 
     def connectionMade(self):
 
@@ -62,7 +68,7 @@ class LiarsGame(LineReceiver):
             log.msg(self._username + " disconnected from the server.")
             self.send_message(network_command.PLAYER_LEFT +
                               network_command.DELIMINATOR + self._username)
-            self.roll_new_round()
+            self.next_round()
 
     def _received_username(self, username):
         """Set the client's username. Usernames cannot be changed once set.
@@ -92,7 +98,7 @@ class LiarsGame(LineReceiver):
         if i == 0 and len(self.factory.game.player_order) >= 2:
             log.msg("Game started on the request of: " + self._username)
             self.factory.game_started = True
-            self.roll_new_round()
+            self.next_round()
         else:
             log.msg(
                 self.username + " attempted to start the game, but they "
@@ -132,14 +138,14 @@ class LiarsGame(LineReceiver):
 
             self.send_message(network_command.PLAYER_LOST_DIE +
                               network_command.DELIMINATOR + losing_player)
-            self.next_turn()
+            self.next_round()
 
         except RuntimeError:
             # No previous bet
             self.send_message(network_command.PLAY,
                               self.factory.game.turn_player())
 
-    def roll_new_round(self):
+    def next_round(self):
         """Roll a new round of the game."""
         self.factory.game.next_round()
         next_player = self.factory.game.turn_player()

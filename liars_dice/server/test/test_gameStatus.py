@@ -117,6 +117,21 @@ class TestGameStatus(TestCase):
         self.assertEqual(self.status.turn_player_previous(), "test",
                          "incorrect previous player - should be 'test'")
 
+    def test_get_player_status(self):
+        self.status.add_player("test2")
+        test_output = self.status.get_player_status()
+        expected_output = [("test", Hand.INITIAL_HAND_SIZE),
+                           ("test2", Hand.INITIAL_HAND_SIZE)]
+        self.assertEqual(test_output, expected_output,
+                         "incorrect for no players")
+
+        self.status.players = {}
+        self.status.player_order = []
+        test_output = self.status.get_player_status()
+        expected_output = []
+        self.assertEqual(test_output, expected_output,
+                         "incorrect for no players")
+
     def test_handle_bet(self):
         self.status.previous_bet = (1, 5)
         self.status.handle_bet(2, 5)

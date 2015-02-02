@@ -88,7 +88,7 @@ class TestGameStatus(TestCase):
         self.assertEqual(new_count, old_count, "hand size changed")
         self.assertEqual(self.status._dice_count, collections.Counter(
             self.status.players["test"].die_face()), "incorrect dice tally "
-                                                      "for single player")
+                                                     "for single player")
 
     def test_get_winner(self):
         self.status.players["test2"] = Hand()
@@ -147,28 +147,39 @@ class TestGameStatus(TestCase):
     def test_handle_liar(self):
         self.status._turn_player_index = 0
         self.status.add_player("test2")
-        self.status.handle_bet(2, 4)
         self.status._dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
-        self.assertEqual(self.status.handle_liar(), "test",
-                         "Wrong player (incorrect guess)")
+
+        self.status.handle_bet(2, 4)
+        self.assertEqual(self.status.handle_liar(), ("test", False),
+                         "wrong player (incorrect guess)")
 
         self.status.handle_bet(2, 5)
-        self.status._dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
-        self.assertEqual(self.status.handle_liar(), "test2",
-                         "Wrong player (correct guess)")
+        self.assertEqual(self.status.handle_liar(), ("test2", False),
+                         "wrong player (correct guess)")
+
+        self.status.handle_bet(2, 4)
+        self.status.players["test2"].hand = [Die()]
+        self.assertEqual(self.status.handle_liar(), ("test2", True),
+                         "player should be eliminated")
 
     def test_handle_spot_on(self):
         self.status._turn_player_index = 0
         self.status.add_player("test2")
-        self.status.handle_bet(2, 4)
         self.status._dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
-        self.assertEqual(self.status.handle_spot_on(), "test2",
-                         "Wrong player (correct guess)")
+
+        self.status.handle_bet(2, 4)
+        self.assertEqual(self.status.handle_spot_on(), ("test2", False),
+                         "wrong player (correct guess)")
 
         self.status.handle_bet(2, 5)
-        self.status._dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
-        self.assertEqual(self.status.handle_spot_on(), "test",
-                         "Wrong player (incorrect guess)")
+        self.assertEqual(self.status.handle_spot_on(), ("test", False),
+                         "wrong player (incorrect guess)")
+
+        self.status._turn_player_index = 0
+        self.status.handle_bet(6, 20)
+        self.status.players["test"].hand = [Die()]
+        self.assertEqual(self.status.handle_spot_on(), ("test", True),
+                         "player should be eliminated")
 
     def test_get_player_hands(self):
         self.status.add_player("test2")

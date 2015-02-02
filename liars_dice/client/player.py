@@ -29,7 +29,7 @@ class Player(LineReceiver):
     def lineReceived(self, line):
 
         # Parse message
-        message = line.split(network_command.DELIMINATOR)
+        message = line.split(network_command.DELIMITER)
         command = message[0]
         if len(message) == 1:
             extra = None
@@ -84,7 +84,6 @@ class Player(LineReceiver):
         elif command == network_command.WINNER:
             self.notification_winner(extra)
 
-
     def send_name(self, username):
         """Register the player's username with the server.
 
@@ -94,9 +93,9 @@ class Player(LineReceiver):
         """
         if self._allow_username_change:
             self.sendLine(
-                network_command.USERNAME + network_command.DELIMINATOR +
+                network_command.USERNAME + network_command.DELIMITER +
                 username.replace(
-                    network_command.DELIMINATOR, ""))
+                    network_command.DELIMITER, ""))
             self.username = username
             self._allow_username_change = False
 
@@ -115,7 +114,7 @@ class Player(LineReceiver):
             face: An integer with the die value bet.
             number: An integer with the number of dice bet.
         """
-        self.sendLine(network_command.BET + network_command.DELIMINATOR + str(
+        self.sendLine(network_command.BET + network_command.DELIMITER + str(
             face) + "," + str(number))
 
     def send_start(self):

@@ -5,7 +5,7 @@ clients.
 
 """
 
-DELIMINATOR = ":"  # deliminator between the command and the content
+DELIMITER = ":"  # delimiter between the command and the content
 
 USERNAME = "username"
 PLAYER_LEFT = "left"

@@ -22,7 +22,7 @@ class LiarsGame(LineReceiver):
     def lineReceived(self, line):
 
         # Parse the received message
-        message = line.split(network_command.DELIMINATOR)
+        message = line.split(network_command.DELIMITER)
         command = message[0]
         if len(message) == 1:
             extra = None
@@ -72,7 +72,7 @@ class LiarsGame(LineReceiver):
                 del self.factory.clients[self._username]
                 log.msg(self._username + " disconnected from the server.")
                 self.send_message(network_command.PLAYER_LEFT +
-                                  network_command.DELIMINATOR + self._username)
+                                  network_command.DELIMITER + self._username)
                 self.next_round()
 
     def _received_username(self, username):
@@ -86,7 +86,7 @@ class LiarsGame(LineReceiver):
             self.factory.game.add_player(username)
             log.msg(username + " joined the game.")
             self.send_message(network_command.PLAYER_JOINED +
-                              network_command.DELIMINATOR + username)
+                              network_command.DELIMITER + username)
             self._username = username
             self.send_player_status()
         elif username in self.factory.clients:
@@ -100,7 +100,9 @@ class LiarsGame(LineReceiver):
 
         # Only the first, still active, player can start the game
         # There must be at least 2 players
-        if i == 0 and len(self.factory.game.player_order) >= 2:
+        # Game must not have started
+        if (i == 0 and len(self.factory.game.player_order) >= 2 and
+                not self.factory.game_started):
             log.msg("Game started on the request of: " + self._username)
             self.factory.game_started = True
             self.next_round()
@@ -144,12 +146,12 @@ class LiarsGame(LineReceiver):
 
             # Resolve die loss
             self.send_message(network_command.PLAYER_LOST_DIE +
-                              network_command.DELIMINATOR + losing_player)
+                              network_command.DELIMITER + losing_player)
 
             winner = False
             if eliminated:
                 self.send_message(network_command.PLAYER_ELIMINATED +
-                                  network_command.DELIMINATOR + losing_player)
+                                  network_command.DELIMITER + losing_player)
 
                 # Determine if the game has been won
                 winner = self.check_winner()
@@ -180,7 +182,7 @@ class LiarsGame(LineReceiver):
         next_player = self.factory.game.turn_player()
         log.msg("Start of Round Player: " + next_player)
         self.send_message(
-            network_command.NEXT_TURN + network_command.DELIMINATOR +
+            network_command.NEXT_TURN + network_command.DELIMITER +
             next_player)
         self.send_message(network_command.PLAY, next_player)
 
@@ -190,7 +192,7 @@ class LiarsGame(LineReceiver):
         next_player = self.factory.game.turn_player()
         log.msg("Next Turn: " + next_player)
         self.send_message(network_command.NEXT_TURN +
-                          network_command.DELIMINATOR + next_player)
+                          network_command.DELIMITER + next_player)
         self.send_message(network_command.PLAY, next_player)
 
     def check_winner(self):
@@ -208,7 +210,7 @@ class LiarsGame(LineReceiver):
         if winner is not None:
             log.msg("Winner: " + winner)
             self.send_message(network_command.WINNER +
-                              network_command.DELIMINATOR + winner)
+                              network_command.DELIMITER + winner)
 
             log.msg("Ending the game...")
             self.factory.game.stop()
@@ -227,13 +229,13 @@ class LiarsGame(LineReceiver):
         """Inform all clients of their hand."""
         for player, hand in self.factory.game.get_player_hands():
             self.send_message(network_command.PLAYER_HAND +
-                              network_command.DELIMINATOR +
+                              network_command.DELIMITER +
                               ",".join([str(x) for x in hand]), [player])
 
     def send_player_status(self):
         """Inform all clients of the game status."""
         player_data = self.factory.game.get_player_status()
-        message = (network_command.PLAYER_STATUS + network_command.DELIMINATOR +
+        message = (network_command.PLAYER_STATUS + network_command.DELIMITER +
                    ",".join(p + "=" + str(dice) for p, dice in player_data))
 
         # Send the message

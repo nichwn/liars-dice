@@ -120,7 +120,7 @@ class LiarsGame(LineReceiver):
                 whom the messages should be sent to, or None if the message
                 should be sent to all clients.
         """
-        for username, client in self.factory.clients.items():
+        for username, client in self.factory.clients.iteritems():
             if client_usernames is None or username in client_usernames:
                 client.sendLine(message)
 
@@ -214,7 +214,7 @@ class LiarsGame(LineReceiver):
             self.factory.game.stop()
 
             log.msg("Dropping client connections...")
-            for _, client in self.factory.clients.items():
+            for _, client in self.factory.clients.iteritems():
                 client.transport.loseConnection()
 
             log.msg("Starting a new game...")

@@ -271,6 +271,8 @@ class GameStatus:
         """Move play to the next round."""
         self._round_player_index += 1
         self._turn_player_index = self._round_player_index
+        for hand in self.players.itervalues():
+            hand.roll()
 
     def next_turn(self):
         """Move play to the next turn."""

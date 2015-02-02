@@ -65,7 +65,8 @@ class SimpleBot(Player):
         # See the module header for the explanation of the bot's strategy.
 
         if self.previous_number is not None:
-            expected_dice_per_face = self.previous_number / self.FACES_PER_DIE
+            expected_dice_per_face = (self.previous_number /
+                                      self.FACES_PER_DIE + 2)
         else:
             expected_dice_per_face = None  # not used - suppressing IDE warnings
 

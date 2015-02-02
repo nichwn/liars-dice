@@ -98,6 +98,7 @@ class ConsoleHuman(Player):
         print player + " lost a die."
 
     def notification_eliminated(self, player):
+        print
         if player == self.username:
             print ("You have run out of dice and been eliminated from the "
                    "game. Better luck next time!")
@@ -136,9 +137,11 @@ class ConsoleHuman(Player):
         self._display_instructions = True
 
     def notification_winner(self, player):
-        print "\n" + player + " has won the game."
-        if self.username == player:
-            print "Congratulations " + player
+        print
+        if player != self.username:
+            print player + " has won the game."
+        else:
+            print "You've won the game! Congratulations!"
 
 
 class ConsoleHumanFactory(ClientFactory):

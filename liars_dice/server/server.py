@@ -63,12 +63,17 @@ class LiarsGame(LineReceiver):
 
     def connectionLost(self, reason=connectionDone):
         if self._username is not None:
-            self.factory.game.remove_player(self._username)
-            del self.factory.clients[self._username]
-            log.msg(self._username + " disconnected from the server.")
-            self.send_message(network_command.PLAYER_LEFT +
-                              network_command.DELIMINATOR + self._username)
-            self.next_round()
+
+            # No need to do anything if the player has already been
+            # eliminated or the game is over
+            if (self._username in self.factory.game.players and
+                    self.factory.game.game_running):
+                self.factory.game.remove_player(self._username)
+                del self.factory.clients[self._username]
+                log.msg(self._username + " disconnected from the server.")
+                self.send_message(network_command.PLAYER_LEFT +
+                                  network_command.DELIMINATOR + self._username)
+                self.next_round()
 
     def _received_username(self, username):
         """Set the client's username. Usernames cannot be changed once set.
@@ -140,11 +145,17 @@ class LiarsGame(LineReceiver):
             # Resolve die loss
             self.send_message(network_command.PLAYER_LOST_DIE +
                               network_command.DELIMINATOR + losing_player)
+
+            winner = False
             if eliminated:
                 self.send_message(network_command.PLAYER_ELIMINATED +
                                   network_command.DELIMINATOR + losing_player)
 
-            self.next_round()
+                # Determine if the game has been won
+                winner = self.check_winner()
+
+            if not winner:
+                self.next_round()
 
         except RuntimeError:
             # No previous bet
@@ -181,6 +192,36 @@ class LiarsGame(LineReceiver):
         self.send_message(network_command.NEXT_TURN +
                           network_command.DELIMINATOR + next_player)
         self.send_message(network_command.PLAY, next_player)
+
+    def check_winner(self):
+        """Checks if a player has won the game.
+
+        If a player has won, informs all clients of their victory,
+        disconnects them, and stops the reactor.
+
+        Returns:
+            A Boolean indicating whether a player has won the game.
+        """
+        winner = self.factory.game.get_winner()
+
+        # Winner found
+        if winner is not None:
+            log.msg("Winner: " + winner)
+            self.send_message(network_command.WINNER +
+                              network_command.DELIMINATOR + winner)
+
+            log.msg("Ending the game...")
+            self.factory.game.stop()
+
+            log.msg("Dropping client connections...")
+            for _, client in self.factory.clients.items():
+                client.transport.loseConnection()
+
+            log.msg("Starting a new game...")
+            self.factory.__init__()
+
+            return True
+        return False
 
     def send_player_hand(self):
         """Inform all clients of their hand."""

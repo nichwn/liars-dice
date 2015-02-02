@@ -29,7 +29,38 @@ from liars_dice.client.player import Player, PlayerFactory
 
 
 class SimpleBot(Player):
-    pass
+    """A bot instance as given by the module header."""
+
+    def __init__(self):
+        Player.__init__(self)
+        self.previous_face = None
+        self.previous_number = None
+        self.desired_username = "Simple Bot"
+        self.total_dice = None  # this value is unused - set later
+
+    def notification_player_status(self, player_data):
+        self.total_dice = sum(n for _, n in player_data)
+
+    def notification_username_request(self):
+        self.sendLine(self.desired_username)
+
+        # Add an underscore in case the username is taken and a new username
+        # has to be resent
+        self.desired_username += "_"
+
+    def notification_play_request(self):
+        pass
+
+    def notification_bet(self, face, number):
+        self.previous_face = face
+        self.previous_number = number
+
+    def notification_new_round(self):
+        self.previous_face = None
+        self.previous_number = None
+
+    def notification_can_start(self):
+        self.transport.loseConnection()
 
 
 if __name__ == "__main__":

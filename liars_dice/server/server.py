@@ -51,7 +51,7 @@ class LiarsGame(LineReceiver):
                     log.msg("Turn player attempted to predict: " + line +
                             " - but it was invalid")
                     self.send_message(network_command.PLAY,
-                                      self.factory.game.turn_player())
+                                      [self.factory.game.turn_player()])
 
     def connectionMade(self):
 
@@ -81,8 +81,7 @@ class LiarsGame(LineReceiver):
                     self.next_round()
 
             elif len(self.factory.game.players) > 0:
-                self.send_message(network_command.CAN_START,
-                                  [self.factory.game.player_order[0]])
+                self.send_can_start()
 
     def _received_username(self, username):
         """Set the client's username. Usernames cannot be changed once set.
@@ -101,8 +100,7 @@ class LiarsGame(LineReceiver):
 
             # First player to join can start the game
             if len(self.factory.game.players) == 1:
-                self.send_message(network_command.CAN_START,
-                                  [self.factory.game.player_order[0]])
+                self.send_can_start()
 
         elif username in self.factory.clients:
             log.msg("A client attempted to join as '" + username +
@@ -137,9 +135,23 @@ class LiarsGame(LineReceiver):
                 whom the messages should be sent to, or None if the message
                 should be sent to all clients.
         """
-        for username, client in self.factory.clients.iteritems():
-            if client_usernames is None or username in client_usernames:
+        if client_usernames is None:
+            for username, client in self.factory.clients.iteritems():
                 client.sendLine(message)
+
+        else:
+            for username in client_usernames:
+                self.factory.clients[username].sendLine(message)
+
+    def send_can_start(self):
+        """Send a message informing the client who can start the game that they
+        can start it.
+        """
+        can_start_player = self.factory.game.player_order[0]
+        log.msg("Informing " + can_start_player +
+                " that they can start the game...")
+        self.send_message(network_command.CAN_START,
+                          [self.factory.game.player_order[0]])
 
     def handle_non_bet(self, command):
         """Manage player actions that do not involve betting.
@@ -177,7 +189,7 @@ class LiarsGame(LineReceiver):
         except RuntimeError:
             # No previous bet
             self.send_message(network_command.PLAY,
-                              self.factory.game.turn_player())
+                              [self.factory.game.turn_player()])
 
     def next_round(self):
         """Roll a new round of the game."""
@@ -199,7 +211,7 @@ class LiarsGame(LineReceiver):
         self.send_message(
             network_command.NEXT_TURN + network_command.DELIMITER +
             next_player)
-        self.send_message(network_command.PLAY, next_player)
+        self.send_message(network_command.PLAY, [next_player])
 
     def next_turn(self):
         """Inform clients of the next player's turn."""
@@ -208,7 +220,7 @@ class LiarsGame(LineReceiver):
         log.msg("Next Turn: " + next_player)
         self.send_message(network_command.NEXT_TURN +
                           network_command.DELIMITER + next_player)
-        self.send_message(network_command.PLAY, next_player)
+        self.send_message(network_command.PLAY, [next_player])
 
     def check_winner(self):
         """Checks if a player has won the game.

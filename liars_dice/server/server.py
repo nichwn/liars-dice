@@ -73,6 +73,8 @@ class LiarsGame(LineReceiver):
                 log.msg(self._username + " disconnected from the server.")
                 self.send_message(network_command.PLAYER_LEFT +
                                   network_command.DELIMITER + self._username)
+
+            if self.factory.game_started:
                 self.next_round()
 
     def _received_username(self, username):

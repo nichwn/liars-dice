@@ -76,7 +76,15 @@ class GameStatus:
         self.previous_bet = None  # after bets are made, will be (face, number)
 
     def remove_die(self, player):
-        """Remove a die from the player's hand."""
+        """Remove a die from the player's hand.
+
+        Args:
+            player: A string with the name of the player to be removed.
+
+        Returns:
+            A Boolean indicating whether the player lost their last die and
+            has been removed from the game.
+        """
         removed = self._players[player].hand.pop()
         self._dice_count -= collections.Counter((removed.face,))
         die_remains = self._players[player].have_die()
@@ -84,6 +92,8 @@ class GameStatus:
         # Remove eliminated players
         if not die_remains:
             self.remove_player(player)
+            return True
+        return False
 
     def add_player(self, player):
         """Add a player to the game.
@@ -115,7 +125,7 @@ class GameStatus:
         del self._players[player]
         order_index = self.player_order.index(player)
         self.player_order = (self.player_order[:order_index] +
-                              self.player_order[order_index + 1:])
+                             self.player_order[order_index + 1:])
 
     def roll_all(self):
         """Roll the hands of all players."""
@@ -210,7 +220,9 @@ class GameStatus:
         """Resolve liar declarations made by the turn player.
 
         Returns:
-            A string with the name of the player who lost a die.
+            A tuple composed of a string with the name of the player who lost a
+            die, and a Boolean indicating whether the player lost their last
+            die and has hence been eliminated.
 
         Raises:
             RuntimeError: No previous bet has been made.
@@ -224,14 +236,16 @@ class GameStatus:
         else:
             player = self.turn_player_previous()
 
-        self.remove_die(player)
-        return player
+        eliminated = self.remove_die(player)
+        return player, eliminated
 
     def handle_spot_on(self):
         """Handle spot on declarations made by the turn player.
 
         Returns:
-            A string with the name of the player who lost a die.
+            A tuple composed of a string with the name of the player who lost a
+            die, and a Boolean indicating whether the player lost their last
+            die and has hence been eliminated.
 
         Raises:
             RuntimeError: No previous bet has been made.
@@ -245,8 +259,8 @@ class GameStatus:
         else:
             player = self.turn_player_previous()
 
-        self.remove_die(player)
-        return player
+        eliminated = self.remove_die(player)
+        return player, eliminated
 
     def next_round(self):
         """Move play to the next round."""

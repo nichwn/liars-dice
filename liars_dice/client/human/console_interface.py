@@ -97,6 +97,14 @@ class ConsoleHuman(Player):
     def notification_player_lost_die(self, player):
         print player + " lost a die."
 
+    def notification_eliminated(self, player):
+        if player == self.username:
+            print ("You have run out of dice and been eliminated from the "
+                   "game. Better luck next time!")
+        else:
+            print (player + " lost their last die, and has been eliminated "
+                            "from the game.")
+
     def start_prompt(self):
         """Prompt the player as to whether they would like to start the
         game.

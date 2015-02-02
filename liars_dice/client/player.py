@@ -40,34 +40,50 @@ class Player(LineReceiver):
         if command == network_command.PLAYER_HAND:
             self._received_hand(extra)
             self.notification_hand()
+
         elif command == network_command.PLAYER_STATUS:
             player_data = [(username, int(amount)) for username, amount in
                            (player.split("=") for player in extra.split(","))]
             self.notification_player_status(player_data)
+
         elif command == network_command.NEXT_TURN:
             self.notification_next_turn(extra)
+
         elif command == network_command.PLAYER_LEFT:
             self.notification_player_left(extra)
+
         elif command == network_command.PLAYER_JOINED:
             self.notification_player_joined(extra)
+
         elif command == network_command.USERNAME:
             self._allow_username_change = True
             self.notification_name_request()
+
         elif command == network_command.PLAY:
             self.notification_play_request()
+
         elif command == network_command.BET:
             face, number = [int(n) for n in extra.split(",")]
             self.notification_bet(face, number)
+
         elif command == network_command.SPOT_ON:
             self.notification_spot_on()
+
         elif command == network_command.LIAR:
             self.notification_liar()
+
         elif command == network_command.PLAYER_LOST_DIE:
             self.notification_player_lost_die(extra)
+
+        elif command == network_command.PLAYER_ELIMINATED:
+            self.notification_eliminated(extra)
+
         elif command == network_command.NEXT_ROUND:
             self.notification_new_round()
+
         elif command == network_command.WINNER:
             self.notification_winner(extra)
+
 
     def send_name(self, username):
         """Register the player's username with the server.
@@ -188,6 +204,16 @@ class Player(LineReceiver):
 
     def notification_player_lost_die(self, player):
         """Respond to a player losing a die.
+
+        Intended to be overridden by subclasses (optional).
+
+        Args:
+            player: A string with the player's username whose turn it is.
+        """
+        pass
+
+    def notification_eliminated(self, player):
+        """Respond to a player being eliminated from the game.
 
         Intended to be overridden by subclasses (optional).
 

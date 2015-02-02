@@ -18,6 +18,7 @@ PLAY = "play"
 WINNER = "winner"
 
 PLAYER_LOST_DIE = "player_lost_die"
+PLAYER_ELIMINATED = "eliminated"
 PLAYER_HAND = "hand"
 PLAYER_STATUS = "player_status"
 

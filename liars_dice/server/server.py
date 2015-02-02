@@ -129,15 +129,21 @@ class LiarsGame(LineReceiver):
         """
         try:
             if command == network_command.SPOT_ON:
-                losing_player = self.factory.game.handle_spot_on()
+                losing_player, eliminated = self.factory.game.handle_spot_on()
             else:
-                losing_player = self.factory.game.handle_liar()
+                losing_player, eliminated = self.factory.game.handle_liar()
 
+            # Announce action
             self.send_message(command)
             log.msg("Turn player made accusation: " + command)
 
+            # Resolve die loss
             self.send_message(network_command.PLAYER_LOST_DIE +
                               network_command.DELIMINATOR + losing_player)
+            if eliminated:
+                self.send_message(network_command.PLAYER_ELIMINATED +
+                                  network_command.DELIMINATOR + losing_player)
+
             self.next_round()
 
         except RuntimeError:
@@ -180,8 +186,8 @@ class LiarsGame(LineReceiver):
         """Inform all clients of their hand."""
         for player, hand in self.factory.game.get_player_hands():
             self.send_message(network_command.PLAYER_HAND +
-                              network_command.DELIMINATOR + ",".join([str(x) for x in hand]),
-                              [player])
+                              network_command.DELIMINATOR +
+                              ",".join([str(x) for x in hand]), [player])
 
     def send_player_status(self):
         """Inform all clients of the game status."""

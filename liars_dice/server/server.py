@@ -108,10 +108,10 @@ class LiarsGame(LineReceiver):
             self.next_round()
         else:
             log.msg(
-                self.username + " attempted to start the game, but they "
-                                "either did not have permission to do so, "
-                                "or there were not enough players to start "
-                                "the game.")
+                self._username + " attempted to start the game, but they "
+                                 "either did not have permission to do so, "
+                                 "there were not enough players to start "
+                                 "the game, or the game had already begun.")
 
     def send_message(self, message, client_usernames=None):
         """Send a message to all connected clients.

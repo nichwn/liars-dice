@@ -75,9 +75,12 @@ class LiarsGame(LineReceiver):
                                   network_command.DELIMITER + self._username)
 
             if self.factory.game_started:
-                self.next_round()
+                winner = self.check_winner()
 
-            else:
+                if not winner:
+                    self.next_round()
+
+            elif len(self.factory.game.players) > 0:
                 self.send_message(network_command.CAN_START,
                                   [self.factory.game.player_order[0]])
 

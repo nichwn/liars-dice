@@ -10,6 +10,7 @@ DELIMITER = ":"  # delimiter between the command and the content
 USERNAME = "username"
 PLAYER_LEFT = "left"
 PLAYER_JOINED = "joined"
+CAN_START = "can_start"
 
 START = "start"
 NEXT_ROUND = "next_round"

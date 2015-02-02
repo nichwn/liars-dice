@@ -15,10 +15,6 @@ class ConsoleHuman(Player):
     def __init__(self):
         Player.__init__(self)
 
-        # Whether the player can start the game - toggled in another function
-        # if applicable
-        self._display_start_prompt = False
-
         self._display_instructions = True  # display command instructions
 
     def notification_player_status(self, player_data):
@@ -27,10 +23,6 @@ class ConsoleHuman(Player):
         print "Players\tDice"
         for player, number in player_data:
             print player + "\t" + str(number)
-
-        # Determine if they can start the game
-        if player_data[0][0] == self.username:
-            self._display_start_prompt = True
 
     def notification_name_request(self):
         print "Username requested."
@@ -128,7 +120,7 @@ class ConsoleHuman(Player):
 
     def notification_player_joined(self, player):
         print player + " has joined the game."
-        if self._display_start_prompt:
+        if self.can_start:
             self.start_prompt()
 
     def notification_new_round(self):

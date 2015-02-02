@@ -77,6 +77,10 @@ class LiarsGame(LineReceiver):
             if self.factory.game_started:
                 self.next_round()
 
+            else:
+                self.send_message(network_command.CAN_START,
+                                  [self.factory.game.player_order[0]])
+
     def _received_username(self, username):
         """Set the client's username. Usernames cannot be changed once set.
 
@@ -91,6 +95,12 @@ class LiarsGame(LineReceiver):
                               network_command.DELIMITER + username)
             self._username = username
             self.send_player_status()
+
+            # First player to join can start the game
+            if len(self.factory.game.players) == 1:
+                self.send_message(network_command.CAN_START,
+                                  [self.factory.game.player_order[0]])
+
         elif username in self.factory.clients:
             log.msg("A client attempted to join as '" + username +
                     "' but the username had already been taken.")

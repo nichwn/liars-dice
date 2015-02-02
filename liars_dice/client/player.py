@@ -19,11 +19,13 @@ class Player(LineReceiver):
             not have one.
         hand: A list with the player's hand, or None if the player does not
             have one.
+        can_start: A Boolean indicating whether the player can start the game.
     """
 
     def __init__(self):
         self.username = None
         self.hand = None
+        self.can_start = False
         self._allow_username_change = True
 
     def lineReceived(self, line):
@@ -54,6 +56,10 @@ class Player(LineReceiver):
 
         elif command == network_command.PLAYER_JOINED:
             self.notification_player_joined(extra)
+
+        elif command == network_command.CAN_START:
+            self._received_can_start()
+            self.notification_can_start()
 
         elif command == network_command.USERNAME:
             self._allow_username_change = True
@@ -131,6 +137,10 @@ class Player(LineReceiver):
         #
         # hand is a string of comma-separated face values.
         self.hand = sorted([int(die) for die in hand.split(",")])
+
+    def _received_can_start(self):
+        # Update the flag to indicate the player can start the game
+        self.can_start = True
 
     def notification_player_status(self, player_data):
         """Respond to being provided with game status.
@@ -239,6 +249,10 @@ class Player(LineReceiver):
         Args:
             player: A string with the player's username whose turn it is.
         """
+        pass
+
+    def notification_can_start(self):
+        """Respond to being informed that one can start the game."""
         pass
 
     def notification_new_round(self):

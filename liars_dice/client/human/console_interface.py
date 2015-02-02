@@ -5,8 +5,7 @@ An interface for a human player to play the game.
 """
 import re
 from twisted.internet import reactor
-from twisted.internet.protocol import ClientFactory
-from liars_dice.client.player import Player
+from liars_dice.client.player import Player, PlayerFactory
 
 
 class ConsoleHuman(Player):
@@ -136,25 +135,8 @@ class ConsoleHuman(Player):
             print "You've won the game! Congratulations!"
 
 
-class ConsoleHumanFactory(ClientFactory):
-    """Handle client connections."""
-
-    def startedConnecting(self, connector):
-        print "Attempting to connect to the server..."
-
-    def buildProtocol(self, addr):
-        print "Connection established.\n"
-        return ConsoleHuman()
-
-    def clientConnectionLost(self, connector, reason):
-        print "Connection to the server lost. Reason:", reason
-
-    def clientConnectionFailed(self, connector, reason):
-        print "Failed to connect. Reason:", reason
-
-
 if __name__ == "__main__":
     PORT = 9637
     host = raw_input("Host: ")
-    reactor.connectTCP(host, PORT, ConsoleHumanFactory())
+    reactor.connectTCP(host, PORT, PlayerFactory(ConsoleHuman()))
     reactor.run()

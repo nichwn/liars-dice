@@ -25,20 +25,15 @@ Bot strategy:
         pick random valid face
 """
 from twisted.internet import reactor
-from twisted.internet.protocol import ClientFactory
-from liars_dice.client.player import Player
+from liars_dice.client.player import Player, PlayerFactory
 
 
 class SimpleBot(Player):
     pass
 
 
-class SimpleBotFactory(ClientFactory):
-    pass
-
-
 if __name__ == "__main__":
     PORT = 9637
     host = raw_input("Host: ")
-    reactor.connectTCP(host, PORT, SimpleBotFactory())
+    reactor.connectTCP(host, PORT, PlayerFactory(SimpleBot()))
     reactor.run()

@@ -3,6 +3,7 @@
 Functionality common to all players.
 
 """
+from twisted.internet.protocol import ClientFactory
 
 from twisted.protocols.basic import LineReceiver
 from liars_dice import network_command
@@ -271,3 +272,24 @@ class Player(LineReceiver):
         Intended to be overridden by subclasses (optional).
         """
         pass
+
+
+class PlayerFactory(ClientFactory):
+    """Handle client connections."""
+
+    def __init__(self, client_protocol):
+        self.client_protocol = client_protocol
+
+    def startedConnecting(self, connector):
+        print "Attempting to connect to the server..."
+
+    def buildProtocol(self, addr):
+        print "Connection established.\n"
+        return self.client_protocol
+
+    def clientConnectionLost(self, connector, reason):
+        print "Connection to the server lost. Reason:", reason
+
+    def clientConnectionFailed(self, connector, reason):
+        print "Failed to connect. Reason:", reason
+

@@ -15,8 +15,8 @@ class Player(LineReceiver):
     instances, such as humans or an AI instance.
 
     Attributes:
-        username: A string with the player's name, or None if the player does
-            not have one.
+        username: A string with the player's username, or None if the player
+            does not have one.
         hand: A list with the player's hand, or None if the player does not
             have one.
         can_start: A Boolean indicating whether the player can start the game.
@@ -63,7 +63,7 @@ class Player(LineReceiver):
 
         elif command == network_command.USERNAME:
             self._allow_username_change = True
-            self.notification_name_request()
+            self.notification_username_request()
 
         elif command == network_command.PLAY:
             self.notification_play_request()
@@ -148,14 +148,14 @@ class Player(LineReceiver):
         Intended to be overridden by subclasses (optional).
 
         Args:
-            player_data: A list of tuples composed of player names with the
+            player_data: A list of tuples composed of player usernames with the
                 number of dice they possess. The players are in turn order,
                 but the first entry does not necessarily correspond to the
                 whose turn it is (see notification_next_turn instead).
         """
         pass
 
-    def notification_name_request(self):
+    def notification_username_request(self):
         """Respond to a server's request for a username.
 
         Must be overridden by subclasses.

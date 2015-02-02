@@ -24,7 +24,7 @@ class ConsoleHuman(Player):
         for player, number in player_data:
             print player + "\t" + str(number)
 
-    def notification_name_request(self):
+    def notification_username_request(self):
         print "Username requested."
         username = raw_input("Username: ")
         self.send_name(username)
@@ -137,7 +137,7 @@ class ConsoleHuman(Player):
 
 
 class ConsoleHumanFactory(ClientFactory):
-    """Handle client connections and store the game status."""
+    """Handle client connections."""
 
     def startedConnecting(self, connector):
         print "Attempting to connect to the server..."

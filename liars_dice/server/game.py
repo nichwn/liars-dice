@@ -84,7 +84,7 @@ class GameStatus:
         """Remove a die from the player's hand.
 
         Args:
-            player: A string with the name of the player to be removed.
+            player: A string with the username of the player to be removed.
 
         Returns:
             A Boolean indicating whether the player lost their last die and
@@ -104,7 +104,7 @@ class GameStatus:
         """Add a player to the game.
 
         Args:
-            player: A string with the name of the player to be added.
+            player: A string with the username of the player to be added.
         """
         self.players[player] = Hand()
         self.player_order += (player,)
@@ -114,7 +114,7 @@ class GameStatus:
         """Remove a player from the game.
 
         Args:
-            player: A string with the name of the player to be removed.
+            player: A string with the username of the player to be removed.
         """
         self._dice_count -= collections.Counter(self.players[player].die_face())
 
@@ -143,8 +143,8 @@ class GameStatus:
         """Determine the winner of the game, if any.
 
         Returns:
-            A string with the name of the winning player, or None if there is no
-            such player.
+            A string with the username of the winning player, or None if there
+            is no such player.
         """
         remaining = self.players.keys()
         if len(remaining) == 1:
@@ -156,7 +156,7 @@ class GameStatus:
         """Determine the player whose turn it is.
 
         Returns:
-            A string with the name of the current turn player.
+            A string with the username of the current turn player.
         """
         i = self._turn_player_index % len(self.player_order)
         return self.player_order[i]
@@ -165,7 +165,7 @@ class GameStatus:
         """Determine the player whose turn it was last turn.
 
         Returns:
-            A string with the name of the previous turn player.
+            A string with the username of the previous turn player.
         """
         i = (self._turn_player_index - 1) % len(self.player_order)
         return self.player_order[i]
@@ -184,7 +184,7 @@ class GameStatus:
         """Provide information on the current game state.
 
         Returns:
-            A list of tuples, where the tuple is a player's name
+            A list of tuples, where the tuple is a player's username
             followed by the number of dice they have.
 
             The order is in turn order, but the first player does not
@@ -225,9 +225,9 @@ class GameStatus:
         """Resolve liar declarations made by the turn player.
 
         Returns:
-            A tuple composed of a string with the name of the player who lost a
-            die, and a Boolean indicating whether the player lost their last
-            die and has hence been eliminated.
+            A tuple composed of a string with the username of the player who
+            lost a die, and a Boolean indicating whether the player lost their
+            last die and has hence been eliminated.
 
         Raises:
             RuntimeError: No previous bet has been made.
@@ -248,9 +248,9 @@ class GameStatus:
         """Handle spot on declarations made by the turn player.
 
         Returns:
-            A tuple composed of a string with the name of the player who lost a
-            die, and a Boolean indicating whether the player lost their last
-            die and has hence been eliminated.
+            A tuple composed of a string with the username of the player who
+            lost a die, and a Boolean indicating whether the player lost their
+            last die and has hence been eliminated.
 
         Raises:
             RuntimeError: No previous bet has been made.

@@ -5,6 +5,7 @@ An interface for a human player to play the game.
 """
 import re
 from twisted.internet import reactor
+from liars_dice import config_parse
 from liars_dice.client.player import Player, PlayerFactory
 
 
@@ -136,7 +137,7 @@ class ConsoleHuman(Player):
 
 
 if __name__ == "__main__":
-    PORT = 9637
-    host = raw_input("Host: ")
-    reactor.connectTCP(host, PORT, PlayerFactory(ConsoleHuman()))
+    HOST = config_parse.host
+    PORT = config_parse.port
+    reactor.connectTCP(HOST, PORT, PlayerFactory(ConsoleHuman()))
     reactor.run()

@@ -26,6 +26,7 @@ Bot strategy:
 """
 from random import randint, random
 from twisted.internet import reactor
+from liars_dice import config_parse
 from liars_dice.client.player import Player, PlayerFactory
 
 
@@ -133,7 +134,7 @@ def random_boolean(true_chance):
 
 
 if __name__ == "__main__":
-    PORT = 9637
-    host = raw_input("Host: ")
-    reactor.connectTCP(host, PORT, PlayerFactory(SimpleBot()))
+    HOST = config_parse.host
+    PORT = config_parse.port
+    reactor.connectTCP(HOST, PORT, PlayerFactory(SimpleBot()))
     reactor.run()

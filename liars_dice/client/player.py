@@ -6,7 +6,7 @@ Functionality common to all players.
 from twisted.internet.protocol import ClientFactory
 
 from twisted.protocols.basic import LineReceiver
-from liars_dice import network_command
+from liars_dice import network_command, config_parse
 
 
 class Player(LineReceiver):
@@ -281,7 +281,8 @@ class PlayerFactory(ClientFactory):
         self.client_protocol = client_protocol
 
     def startedConnecting(self, connector):
-        print "Attempting to connect to the server..."
+        print ("Attempting to connect to the server at "
+               "[{}]...".format(config_parse.host))
 
     def buildProtocol(self, addr):
         print "Connection established.\n"

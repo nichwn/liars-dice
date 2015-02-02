@@ -9,7 +9,7 @@ from twisted.internet import reactor
 from twisted.internet.protocol import connectionDone, Factory
 from twisted.protocols.basic import LineReceiver
 from twisted.python import log
-from liars_dice import network_command
+from liars_dice import network_command, config_parse
 from liars_dice.server.game import GameStatus
 
 
@@ -281,5 +281,5 @@ class LiarGameFactory(Factory):
 
 
 log.startLogging(sys.stdout)
-reactor.listenTCP(9637, LiarGameFactory())
+reactor.listenTCP(config_parse.port, LiarGameFactory())
 reactor.run()

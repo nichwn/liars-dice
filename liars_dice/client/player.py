@@ -277,8 +277,8 @@ class Player(LineReceiver):
 class PlayerFactory(ClientFactory):
     """Handle client connections."""
 
-    def __init__(self, client_protocol):
-        self.client = client_protocol
+    def __init__(self, client):
+        self.client = client
 
     def startedConnecting(self, connector):
         print ("Attempting to connect to the server at "

@@ -5,7 +5,7 @@ An interface for a human player to play the game via a GUI.
 """
 from Tkinter import *
 from twisted.internet import tksupport, reactor
-from liars_dice import config_parse
+from liars_dice import config_parse, network_command
 from liars_dice.client.player import Player, PlayerFactory
 
 
@@ -16,7 +16,7 @@ class GUIHuman(Player):
         pass
 
     def notification_username_request(self):
-        pass
+        app.username_prompt()
 
     def notification_play_request(self):
         pass
@@ -58,27 +58,63 @@ class GUIHuman(Player):
         pass
 
 
+class UsernameWindow:
+    """Prompts the player for their username."""
+
+    def __init__(self, master, client):
+        self.client = client
+
+        self.top = Toplevel(master)
+        self.prompt = Label(self.top, text="Username:")
+        self.prompt.pack()
+        self.username_entry = Entry(self.top)
+        self.username_entry.pack()
+        self.username_entry.focus_set()
+        self.submit = Button(self.top, text="Submit",
+                             command=self.send_username)
+        self.submit.pack()
+
+        # Take focus
+        self.top.transient(master)
+        self.top.grab_set()
+
+    def send_username(self):
+        username = self.username_entry.get().replace(network_command.DELIMITER,
+                                                     "")
+        self.client.send_name(username)
+        self.cleanup()
+
+    def cleanup(self):
+        """Destroy the window."""
+        self.top.destroy()
+
+
 class App:
     """Tkinter GUI."""
 
     def __init__(self, master, factory):
-        pass
+        self.master = master
+        self.client = factory.client
+
+    def username_prompt(self):
+        window = UsernameWindow(self.master, self.client)
+        self.master.wait_window(window.top)
 
 
 if __name__ == "__main__":
 
     # Protocol factory
-    factory = PlayerFactory(GUIHuman())
+    player_factory = PlayerFactory(GUIHuman())
 
     # Create the GUI
     root = Tk()
     root.title("Liar's Dice Client")
     root.resizable(width=False, height=False)
-    app = App(root, factory)
+    app = App(root, player_factory)
     tksupport.install(root)
 
     # Reactor
     HOST = config_parse.host
     PORT = config_parse.port
-    reactor.connectTCP(HOST, PORT, factory)
+    reactor.connectTCP(HOST, PORT, player_factory)
     reactor.run()

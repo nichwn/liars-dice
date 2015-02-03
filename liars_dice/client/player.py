@@ -278,7 +278,7 @@ class PlayerFactory(ClientFactory):
     """Handle client connections."""
 
     def __init__(self, client_protocol):
-        self.client_protocol = client_protocol
+        self.client = client_protocol
 
     def startedConnecting(self, connector):
         print ("Attempting to connect to the server at "
@@ -286,7 +286,7 @@ class PlayerFactory(ClientFactory):
 
     def buildProtocol(self, addr):
         print "Connection established.\n"
-        return self.client_protocol
+        return self.client
 
     def clientConnectionLost(self, connector, reason):
         print "Connection to the server lost. Reason:", reason

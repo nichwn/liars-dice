@@ -1,6 +1,6 @@
 """
 
-An interface for a human player to play the game.
+An interface for a human player to play the game via a console.
 
 """
 import re

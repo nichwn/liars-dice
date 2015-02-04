@@ -9,55 +9,6 @@ from liars_dice import config_parse, network_command
 from liars_dice.client.player import Player, PlayerFactory
 
 
-class GUIHuman(Player):
-    """Client protocol instance."""
-
-    def notification_player_status(self, player_data):
-        pass
-
-    def notification_username_request(self):
-        app.username_prompt()
-
-    def notification_play_request(self):
-        pass
-
-    def notification_next_turn(self, player):
-        pass
-
-    def notification_hand(self):
-        pass
-
-    def notification_bet(self, face, number):
-        pass
-
-    def notification_spot_on(self):
-        pass
-
-    def notification_liar(self):
-        pass
-
-    def notification_player_lost_die(self, player):
-        pass
-
-    def notification_eliminated(self, player):
-        pass
-
-    def notification_player_left(self, player):
-        pass
-
-    def notification_player_joined(self, player):
-        pass
-
-    def notification_can_start(self):
-        pass
-
-    def notification_new_round(self):
-        pass
-
-    def notification_winner(self, player):
-        pass
-
-
 class HandLabelFrame:
     """A label frame consisting of the player's hand."""
 
@@ -119,31 +70,32 @@ class UsernameWindow:
         self.top.destroy()
 
 
-class App:
-    """Tkinter GUI."""
+class App(Player):
+    """Tkinter GUI and server connection."""
 
-    def __init__(self, master, factory):
+    def __init__(self, master):
+        Player.__init__(self)
         self.master = master
-        self.client = factory.client
 
-    def username_prompt(self):
-        window = UsernameWindow(self.master, self.client)
+    def notification_username_request(self):
+        window = UsernameWindow(self.master, self)
         self.master.wait_window(window.top)
 
 
 if __name__ == "__main__":
 
-    # Protocol factory
-    player_factory = PlayerFactory(GUIHuman())
-
-    # Create the GUI
+    # GUI Settings
     root = Tk()
     root.title("Liar's Dice Client")
     root.resizable(width=False, height=False)
-    app = App(root, player_factory)
+
+    # Create the GUI
+    player_factory = PlayerFactory(App(root))
+
+    # tkinter + twisted support
     tksupport.install(root)
 
-    # Reactor
+    # Connection
     HOST = config_parse.host
     PORT = config_parse.port
     reactor.connectTCP(HOST, PORT, player_factory)

@@ -9,6 +9,30 @@ from liars_dice import config_parse, network_command
 from liars_dice.client.player import Player, PlayerFactory
 
 
+class PreviousBetLabelFrame:
+    """A label frame displaying the latest bet played."""
+
+    def __init__(self, master):
+        self.frame = LabelFrame(master, text="Dice")
+        self.frame.pack()
+
+        self._dice = []
+
+    def display_previous_bet(self, face, number):
+        """Displays the bet.
+
+        Args:
+            face: An integer with the face of the die, or None if there is no
+                previous bet.
+            number: An inteer with number of the die, or None if there is no
+                previous bet.
+        """
+        if face is not None and number is not None:
+
+            self._dice = display_dice(self.frame, self._dice,
+                                      [face for _ in xrange(number)])
+
+
 class HandLabelFrame:
     """A label frame consisting of the player's hand."""
 
@@ -17,6 +41,7 @@ class HandLabelFrame:
         self.frame.pack()
 
         self._dice = []
+
         self.generate_hand_display(hand)
 
     def generate_hand_display(self, hand):
@@ -25,18 +50,7 @@ class HandLabelFrame:
         Args:
             hand: An iterator of integers from 1 - 6 corresponding to die faces.
         """
-        # Destroy the old hand
-        for die in self._dice:
-            die.destroy()
-
-        # Generate new hand
-        self._dice = []
-        for die in hand:
-            die_image = PhotoImage(file="resources/die_{}.gif".format(die))
-            die_label = Label(self.frame, image=die_image)
-            die_label.image = die_image
-            die_label.pack(side=LEFT)
-            self._dice.append(die_label)
+        self._dice = display_dice(self.frame, self._dice, hand)
 
 
 class UsernameWindow:
@@ -80,6 +94,35 @@ class App(Player):
     def notification_username_request(self):
         window = UsernameWindow(self.master, self)
         self.master.wait_window(window.top)
+
+
+def display_dice(master, dice_old, face_new):
+    """Displays dice in a frame horizontally.
+
+    Args:
+        master: The frame to display the dice.
+        dice_old: A list with the previous dice returned by this function, or
+            [] if there aren't any.
+        face_new: A list of integers of dice faces to display.
+
+    Returns:
+        A list of the dice generated.
+    """
+    # Destroy the old collection
+    for die in dice_old:
+        die.destroy()
+
+    # Generate new hand
+    dice = []
+    for die in face_new:
+        die_image = PhotoImage(file="resources/die_{}.gif".format(die))
+        die_label = Label(master, image=die_image)
+        die_label.image = die_image
+        die_label.pack(side=LEFT)
+        dice.append(die_label)
+
+    return dice
+
 
 
 if __name__ == "__main__":

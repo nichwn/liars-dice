@@ -58,6 +58,36 @@ class GUIHuman(Player):
         pass
 
 
+class HandLabelFrame:
+    """A label frame consisting of the player's hand."""
+
+    def __init__(self, master, hand):
+        self.frame = LabelFrame(master, text="Your Hand")
+        self.frame.pack()
+
+        self._dice = []
+        self.generate_hand_display(hand)
+
+    def generate_hand_display(self, hand):
+        """Displays the dice in the player's hand.
+
+        Args:
+            hand: An iterator of integers from 1 - 6 corresponding to die faces.
+        """
+        # Destroy the old hand
+        for die in self._dice:
+            die.destroy()
+
+        # Generate new hand
+        self._dice = []
+        for die in hand:
+            die_image = PhotoImage(file="resources/die_{}.gif".format(die))
+            die_label = Label(self.frame, image=die_image)
+            die_label.image = die_image
+            die_label.pack(side=LEFT)
+            self._dice.append(die_label)
+
+
 class UsernameWindow:
     """Prompts the player for their username."""
 

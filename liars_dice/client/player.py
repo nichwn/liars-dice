@@ -18,8 +18,8 @@ class Player(LineReceiver):
     Attributes:
         username: A string with the player's username, or None if the player
             does not have one.
-        hand: A list with the player's hand, or None if the player does not
-            have one.
+        hand: A list of integers containing the die faces of the player's hand,
+            or None if the player does not have one.
         can_start: A Boolean indicating whether the player can start the game.
     """
 

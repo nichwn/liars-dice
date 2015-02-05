@@ -94,11 +94,11 @@ class TurnLabelFrame(LabelFrame):
         self.next_player_dice.configure(text=next_player[1])
 
 
-class PlayLabelFrame(LabelFrame):
-    """A label frame allowing users to select their actions."""
+class PlayWindow(Toplevel):
+    """A window allowing users to select their actions."""
 
     def __init__(self, master, client, **kwargs):
-        LabelFrame.__init__(self, master, **kwargs)
+        Toplevel.__init__(self, master, **kwargs)
         self.client = client
 
         # Numbers
@@ -137,6 +137,10 @@ class PlayLabelFrame(LabelFrame):
         # Face and number of dice selected by the user
         self.face_selected = None
         self.number_selected = None
+
+        # Take focus
+        self.transient(master)
+        self.grab_set()
 
     def background_click(self, buttons, selected_index):
         """Changes the colours of pressed buttons.
@@ -255,14 +259,21 @@ class PlayLabelFrame(LabelFrame):
     def pressed_liar(self):
         """Submit a 'Liar' action."""
         self.client.send_liar()
+        self.cleanup()
 
     def pressed_spot_on(self):
         """Submit a 'Spot On' action."""
         self.client.send_spot_on()
+        self.cleanup()
 
     def pressed_bet(self):
         """Submit a 'Bet' action."""
         self.client.send_bet(self.face_selected, self.number_selected)
+        self.cleanup()
+
+    def cleanup(self):
+        """Destroy the window."""
+        self.destroy()
 
 
 class PreviousBetLabelFrame(LabelFrame):
@@ -378,7 +389,8 @@ class App(Player):
         self.master.wait_window(window)
 
     def notification_play_request(self):
-        pass
+        window = PlayWindow(self.master, self)
+        self.master.wait_window(window)
 
     def notification_next_turn(self, player):
         pass

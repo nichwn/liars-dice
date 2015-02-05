@@ -376,6 +376,7 @@ class App(Player):
         # Game status
         self.game_started = False
         self.player_data = []
+        self.turn_username = None
 
     def notification_player_status(self, player_data):
         self.player_data = player_data
@@ -393,7 +394,16 @@ class App(Player):
         self.master.wait_window(window)
 
     def notification_next_turn(self, player):
-        pass
+        self.turn_username = player
+
+        # Update the player order display
+        i = [p[0] for p in self.player_data].index(player)
+        length = len(self.player_data)
+        previous_player = self.player_data[(i - 1) % length]
+        current_player = self.player_data[i]
+        next_player = self.player_data[(i + 1) % length]
+        self.turn_frame.display_turn_order(previous_player, current_player,
+                                           next_player)
 
     def notification_hand(self):
         self.hand_frame.generate_hand_display(self.hand)

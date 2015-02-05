@@ -385,6 +385,12 @@ class App(Player):
         if not self.game_started and self.can_start and len(player_data) >= 2:
             self.start_button.configure(state=NORMAL)
 
+        # Display player status information to the console
+        elif self.game_started:
+            self.console_frame.emit_line("Players with their remaining dice:")
+            for player in player_data:
+                self.console_frame.emit_line(player[0] + " - " + str(player[1]))
+
     def notification_username_request(self):
         window = UsernameWindow(self.master, self)
         self.master.wait_window(window)
@@ -405,29 +411,47 @@ class App(Player):
         self.turn_frame.display_turn_order(previous_player, current_player,
                                            next_player)
 
+        if player[-1].lower() == "s":
+            player += "'"
+        else:
+            player += "'s"
+        self.console_frame.emit_line(player + " turn!")
+
     def notification_hand(self):
         self.hand_frame.generate_hand_display(self.hand)
 
     def notification_bet(self, face, number):
         self.previous_bet_frame.display_previous_bet(face, number)
 
+        out_face = str(face)
+        if number != 1:
+            out_face = str(face) + "s"
+        out_number = str(number)
+        self.console_frame.emit_line("{} bet {} {}.".format(self.turn_username,
+                                                            out_number,
+                                                            out_face))
+
     def notification_spot_on(self):
-        pass
+        self.console_frame.emit_line(self.turn_username + " announced "
+                                                          "'Spot On!'")
 
     def notification_liar(self):
-        pass
+        self.console_frame.emit_line(self.turn_username + " announced "
+                                                          "'Liar!'")
 
     def notification_player_lost_die(self, player):
-        pass
+        self.console_frame.emit_line(player + " lost a die.")
 
     def notification_eliminated(self, player):
-        pass
+        self.console_frame.emit_line(player + " has run out of dice and been "
+                                              "eliminated!")
 
     def notification_player_left(self, player):
-        pass
+        self.console_frame.emit_line(player + " has disconnected from the "
+                                              "game.")
 
     def notification_player_joined(self, player):
-        pass
+        self.console_frame.emit_line(player + " has joined the game.")
 
     def notification_new_round(self):
 
@@ -440,8 +464,10 @@ class App(Player):
             self.previous_bet_frame.grid()
             self.start_button.destroy()
 
+        self.console_frame.emit_line("New round!")
+
     def notification_winner(self, player):
-        pass
+        self.console_frame.emit_line(player + " has won the game!")
 
 
 def display_dice(master, dice_old, face_new):

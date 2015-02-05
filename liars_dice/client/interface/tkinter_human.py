@@ -446,6 +446,9 @@ class App(Player):
         self.console_frame.emit_line(player + " has run out of dice and been "
                                               "eliminated!")
 
+        if player == self.username:
+            self.hand_frame.destroy()
+
     def notification_player_left(self, player):
         self.console_frame.emit_line(player + " has disconnected from the "
                                               "game.")
@@ -463,6 +466,8 @@ class App(Player):
             self.hand_frame.grid()
             self.previous_bet_frame.grid()
             self.start_button.destroy()
+
+        self.previous_bet_frame.display_previous_bet(1, 0)
 
         self.console_frame.emit_line("New round!")
 

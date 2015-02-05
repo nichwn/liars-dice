@@ -14,6 +14,8 @@ class PlayLabelFrame:
     """A label frame allowing users to select their actions."""
 
     def __init__(self, master, client):
+        self.client = client
+
         play_frame = LabelFrame(master)
         play_frame.pack()
 
@@ -40,8 +42,9 @@ class PlayLabelFrame:
         spot_on = Button(play_frame, text="Spot On!",
                          command=self.pressed_spot_on)
         spot_on.pack(side=TOP)
-        bet = Button(play_frame, text="Bet!", command=self.pressed_bet)
-        bet.pack(side=TOP)
+        self.bet_button = Button(play_frame, text="Bet!", state="disabled",
+                                 command=self.pressed_bet)
+        self.bet_button.pack(side=TOP)
 
         # Colour to change buttons to when clicked
         self.selectedbg = "#00ffff"
@@ -66,6 +69,14 @@ class PlayLabelFrame:
             die.configure(bg=self.defaultbg)
         buttons[selected_index].configure(bg=self.selectedbg)
 
+    def check_bet_possible(self):
+        """Enables the 'Bet!' button if the player has selected what bet
+        they'd like to send.
+        """
+        if (self.face_selected is not None and
+                self.number_selected is not None):
+            self.bet_button.configure(state="normal")
+
     def face_click(self, selected_index):
         """Stores the face value when a dice face button is pressed, and
         changes its background colour.
@@ -76,6 +87,7 @@ class PlayLabelFrame:
         """
         self.face_selected = selected_index + 1
         self.background_click(self.dice_buttons, selected_index)
+        self.check_bet_possible()
 
     def number_click(self, selected_index):
         """Stores the face value when a dice face button is pressed, and
@@ -87,6 +99,7 @@ class PlayLabelFrame:
         """
         self.number_selected = selected_index + 1
         self.background_click(self.number_buttons, selected_index)
+        self.check_bet_possible()
 
     def position_widget(self, widget):
         """Return the row and column position of a widget in a multi-row, two
@@ -158,13 +171,16 @@ class PlayLabelFrame:
         return generated
 
     def pressed_liar(self):
-        pass
+        """Submit a 'Liar' action."""
+        self.client.send_liar()
 
     def pressed_spot_on(self):
-        pass
+        """Submit a 'Spot On' action."""
+        self.client.send_spot_on()
 
     def pressed_bet(self):
-        pass
+        """Submit a 'Bet' action."""
+        self.client.send_bet(self.face_selected, self.number_selected)
 
 
 class PreviousBetLabelFrame:

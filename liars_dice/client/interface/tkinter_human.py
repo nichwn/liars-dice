@@ -11,6 +11,34 @@ from liars_dice import config_parse, network_command
 from liars_dice.client.player import Player, PlayerFactory
 
 
+class ConsoleFrame:
+    """A frame containing a textbox for message output."""
+    def __init__(self, master):
+        frame = Frame(master)
+        frame.pack()
+
+        scrollbar = Scrollbar(frame)
+        scrollbar.pack(side=RIGHT, fill=Y)
+
+        self.console = Text(frame, height=10, state=DISABLED)
+        self.console.pack()
+
+        self.console.configure(yscrollcommand=scrollbar.set)
+        scrollbar.config(command=self.console.yview)
+
+    def emit_line(self, line):
+        # Prevent an empty line on the first line
+        self.console.config(state=NORMAL)
+        if self.console.get("1.0", "end-1c") != "":
+            self.console.insert(END, "\n" + line)
+        else:
+            self.console.insert(END, line)
+        self.console.config(state=DISABLED)
+
+        # Automatic textbox scrolling
+        self.console.see(END)
+
+
 class TurnLabelFrame:
     """A label frame indicating whose turn it is."""
 
@@ -97,7 +125,7 @@ class PlayLabelFrame:
         spot_on = Button(play_frame, text="Spot On!",
                          command=self.pressed_spot_on)
         spot_on.pack(side=TOP)
-        self.bet_button = Button(play_frame, text="Bet!", state="disabled",
+        self.bet_button = Button(play_frame, text="Bet!", state=DISABLED,
                                  command=self.pressed_bet)
         self.bet_button.pack(side=TOP)
 
@@ -130,7 +158,7 @@ class PlayLabelFrame:
         """
         if (self.face_selected is not None and
                 self.number_selected is not None):
-            self.bet_button.configure(state="normal")
+            self.bet_button.configure(state=NORMAL)
 
     def face_click(self, selected_index):
         """Stores the face value when a dice face button is pressed, and

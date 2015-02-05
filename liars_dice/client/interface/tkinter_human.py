@@ -4,10 +4,65 @@ An interface for a human player to play the game via a GUI.
 
 """
 from Tkinter import *
+import tkFont
 import functools
 from twisted.internet import tksupport, reactor
 from liars_dice import config_parse, network_command
 from liars_dice.client.player import Player, PlayerFactory
+
+
+class TurnLabelFrame:
+    """A label frame indicating whose turn it is."""
+
+    def __init__(self, master):
+        frame = LabelFrame(master, text="Player Order")
+        frame.pack()
+
+        # Player names
+        self.previous_player_username = Label(frame)
+        self.previous_player_username.grid(row=1, column=0)
+        self.current_player_username = Label(frame)
+        self.current_player_username.grid(row=1, column=1)
+        self.next_player_username = Label(frame)
+        self.next_player_username.grid(row=1, column=2)
+
+        # Player dice
+        self.previous_player_dice = Label(frame)
+        self.previous_player_dice.grid(row=2, column=0)
+        self.current_player_dice = Label(frame)
+        self.current_player_dice.grid(row=2, column=1)
+        self.next_player_dice = Label(frame)
+        self.next_player_dice.grid(row=2, column=2)
+
+        # Highlight the current turn player
+        font = tkFont.Font(font=self.current_player_username["font"])
+        font.config(weight="bold")
+        self.current_player_username["font"] = font
+        self.current_player_dice["font"] = font
+
+    def display_turn_order(self, previous_player, current_player,
+                           next_player):
+        """Displays the previous, current, and next player in turn order, along
+        with the number of dice they have remaining.
+
+        Args:
+            previous_player: A tuple consisting of a string with the player who
+                plays right before the current turn player, along with an
+                integer of the number of dice they have remaining.
+            current_player: A tuple consisting of a string with the player whose
+                turn it is, along with an integer of the number of dice they
+                have remaining.
+            next_player: A tuple consisting of a string with the player whose
+                turn is next, along with an integer of the number of dice they
+                have remaining.
+        """
+        self.previous_player_username.configure(text=previous_player[0])
+        self.current_player_username.configure(text=current_player[0])
+        self.next_player_username.configure(text=next_player[0])
+
+        self.previous_player_dice.configure(text=previous_player[1])
+        self.current_player_dice.configure(text=current_player[1])
+        self.next_player_dice.configure(text=next_player[1])
 
 
 class PlayLabelFrame:
@@ -127,8 +182,8 @@ class PlayLabelFrame:
                 It should accept an integer parameter that will correspond
                 with the order the button was created (0-initial).
             text: A list of strings consisting of the text display of the
-                buttons, in the order to be displayed, or None if no text is to be
-                used.
+                buttons, in the order to be displayed, or None if no text is to
+                be used.
         """
         generated = []
         for i in xrange(len(text)):

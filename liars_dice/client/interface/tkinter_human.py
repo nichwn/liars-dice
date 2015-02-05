@@ -353,7 +353,8 @@ class App(Player):
         self.previous_bet_frame.grid(row=2, column=0)
         self.console_frame = ConsoleFrame(master)
         self.console_frame.grid(row=3, column=0)
-        self.start_button = Button(master, text="Start Game!", state=DISABLED)
+        self.start_button = Button(master, text="Start Game!", state=DISABLED,
+                                   command=self.send_start)
         self.start_button.grid(row=4, column=0)
 
         # Hide the game related elements until needed
@@ -361,9 +362,64 @@ class App(Player):
         self.hand_frame.grid_remove()
         self.previous_bet_frame.grid_remove()
 
+        # Game status
+        self.game_started = False
+        self.player_data = []
+
+    def notification_player_status(self, player_data):
+        self.player_data = player_data
+
+        # Allow the client to start the game if the game conditions allow for it
+        if not self.game_started and self.can_start and len(player_data) >= 2:
+            self.start_button.configure(state=NORMAL)
+
     def notification_username_request(self):
         window = UsernameWindow(self.master, self)
         self.master.wait_window(window)
+
+    def notification_play_request(self):
+        pass
+
+    def notification_next_turn(self, player):
+        pass
+
+    def notification_hand(self):
+        self.hand_frame.generate_hand_display(self.hand)
+
+    def notification_bet(self, face, number):
+        self.previous_bet_frame.display_previous_bet(face, number)
+
+    def notification_spot_on(self):
+        pass
+
+    def notification_liar(self):
+        pass
+
+    def notification_player_lost_die(self, player):
+        pass
+
+    def notification_eliminated(self, player):
+        pass
+
+    def notification_player_left(self, player):
+        pass
+
+    def notification_player_joined(self, player):
+        pass
+
+    def notification_new_round(self):
+
+        # Display the UI elements relevant for the game, and remove those
+        # no longer necessary.
+        if not self.game_started:
+            self.game_started = True
+            self.turn_frame.grid()
+            self.hand_frame.grid()
+            self.previous_bet_frame.grid()
+            self.start_button.destroy()
+
+    def notification_winner(self, player):
+        pass
 
 
 def display_dice(master, dice_old, face_new):

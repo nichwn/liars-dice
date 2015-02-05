@@ -11,16 +11,16 @@ from liars_dice import config_parse, network_command
 from liars_dice.client.player import Player, PlayerFactory
 
 
-class ConsoleFrame:
-    """A frame containing a textbox for message output."""
-    def __init__(self, master):
-        frame = Frame(master)
-        frame.pack()
+class ConsoleFrame(Frame):
+    """A frame containing a console for message output."""
 
-        scrollbar = Scrollbar(frame)
+    def __init__(self, master, **kwargs):
+        Frame.__init__(self, master, **kwargs)
+
+        scrollbar = Scrollbar(self)
         scrollbar.pack(side=RIGHT, fill=Y)
 
-        self.console = Text(frame, height=10, state=DISABLED)
+        self.console = Text(self, height=10, state=DISABLED)
         self.console.pack()
 
         self.console.configure(yscrollcommand=scrollbar.set)
@@ -28,6 +28,7 @@ class ConsoleFrame:
 
     def emit_line(self, line):
         # Prevent an empty line on the first line
+        # Need to also prevent user writes
         self.console.config(state=NORMAL)
         if self.console.get("1.0", "end-1c") != "":
             self.console.insert(END, "\n" + line)
@@ -39,27 +40,27 @@ class ConsoleFrame:
         self.console.see(END)
 
 
-class TurnLabelFrame:
+class TurnLabelFrame(LabelFrame):
     """A label frame indicating whose turn it is."""
 
-    def __init__(self, master):
-        frame = LabelFrame(master, text="Player Order")
-        frame.pack()
+    def __init__(self, master, **kwargs):
+        LabelFrame.__init__(self, master, **kwargs)
+        self.configure(text="Player Order")
 
         # Player names
-        self.previous_player_username = Label(frame)
+        self.previous_player_username = Label(self)
         self.previous_player_username.grid(row=1, column=0)
-        self.current_player_username = Label(frame)
+        self.current_player_username = Label(self)
         self.current_player_username.grid(row=1, column=1)
-        self.next_player_username = Label(frame)
+        self.next_player_username = Label(self)
         self.next_player_username.grid(row=1, column=2)
 
         # Player dice
-        self.previous_player_dice = Label(frame)
+        self.previous_player_dice = Label(self)
         self.previous_player_dice.grid(row=2, column=0)
-        self.current_player_dice = Label(frame)
+        self.current_player_dice = Label(self)
         self.current_player_dice.grid(row=2, column=1)
-        self.next_player_dice = Label(frame)
+        self.next_player_dice = Label(self)
         self.next_player_dice.grid(row=2, column=2)
 
         # Highlight the current turn player
@@ -93,24 +94,22 @@ class TurnLabelFrame:
         self.next_player_dice.configure(text=next_player[1])
 
 
-class PlayLabelFrame:
+class PlayLabelFrame(LabelFrame):
     """A label frame allowing users to select their actions."""
 
-    def __init__(self, master, client):
+    def __init__(self, master, client, **kwargs):
+        LabelFrame.__init__(self, master, **kwargs)
         self.client = client
 
-        play_frame = LabelFrame(master)
-        play_frame.pack()
-
         # Numbers
-        number_frame = LabelFrame(play_frame, text="Number of Dice")
+        number_frame = LabelFrame(self, text="Number of Dice")
         number_frame.pack(side=LEFT)
         self.number_buttons = self.generate_text_buttons(number_frame,
                                                          self.number_click,
                                                          [str(x) for x in
                                                           xrange(1, 11)])
         # Die faces
-        dice_frame = LabelFrame(play_frame, text="Die Face")
+        dice_frame = LabelFrame(self, text="Die Face")
         dice_frame.pack(side=LEFT)
         self.dice_buttons = self.generate_image_buttons(dice_frame,
                                                         self.face_click,
@@ -120,12 +119,12 @@ class PlayLabelFrame:
                                                          xrange(1, 7)])
 
         # Action buttons
-        liar = Button(play_frame, text="Liar!", command=self.pressed_liar)
+        liar = Button(self, text="Liar!", command=self.pressed_liar)
         liar.pack(side=TOP)
-        spot_on = Button(play_frame, text="Spot On!",
+        spot_on = Button(self, text="Spot On!",
                          command=self.pressed_spot_on)
         spot_on.pack(side=TOP)
-        self.bet_button = Button(play_frame, text="Bet!", state=DISABLED,
+        self.bet_button = Button(self, text="Bet!", state=DISABLED,
                                  command=self.pressed_bet)
         self.bet_button.pack(side=TOP)
 
@@ -266,12 +265,12 @@ class PlayLabelFrame:
         self.client.send_bet(self.face_selected, self.number_selected)
 
 
-class PreviousBetLabelFrame:
+class PreviousBetLabelFrame(LabelFrame):
     """A label frame displaying the latest bet played."""
 
-    def __init__(self, master):
-        self.frame = LabelFrame(master, text="Dice")
-        self.frame.pack()
+    def __init__(self, master, **kwargs):
+        LabelFrame.__init__(self, master, **kwargs)
+        self.configure(text="Previous Bet")
 
         self._dice = []
 
@@ -286,20 +285,18 @@ class PreviousBetLabelFrame:
         """
         if face is not None and number is not None:
 
-            self._dice = display_dice(self.frame, self._dice,
+            self._dice = display_dice(self, self._dice,
                                       [face for _ in xrange(number)])
 
 
-class HandLabelFrame:
+class HandLabelFrame(LabelFrame):
     """A label frame consisting of the player's hand."""
 
-    def __init__(self, master, hand):
-        self.frame = LabelFrame(master, text="Your Hand")
-        self.frame.pack()
+    def __init__(self, master, **kwargs):
+        LabelFrame.__init__(self, master, **kwargs)
+        self.configure(text="Your Hand")
 
         self._dice = []
-
-        self.generate_hand_display(hand)
 
     def generate_hand_display(self, hand):
         """Displays the dice in the player's hand.
@@ -307,28 +304,27 @@ class HandLabelFrame:
         Args:
             hand: An iterator of integers from 1 - 6 corresponding to die faces.
         """
-        self._dice = display_dice(self.frame, self._dice, hand)
+        self._dice = display_dice(self, self._dice, hand)
 
 
-class UsernameWindow:
+class UsernameWindow(Toplevel):
     """Prompts the player for their username."""
 
-    def __init__(self, master, client):
+    def __init__(self, master, client, **kwargs):
+        Toplevel.__init__(self, master, **kwargs)
         self.client = client
 
-        self.top = Toplevel(master)
-        self.prompt = Label(self.top, text="Username:")
+        self.prompt = Label(self, text="Username:")
         self.prompt.pack()
-        self.username_entry = Entry(self.top)
+        self.username_entry = Entry(self)
         self.username_entry.pack()
         self.username_entry.focus_set()
-        self.submit = Button(self.top, text="Submit",
-                             command=self.send_username)
+        self.submit = Button(self, text="Submit", command=self.send_username)
         self.submit.pack()
 
         # Take focus
-        self.top.transient(master)
-        self.top.grab_set()
+        self.transient(master)
+        self.grab_set()
 
     def send_username(self):
         username = self.username_entry.get().replace(network_command.DELIMITER,
@@ -338,7 +334,7 @@ class UsernameWindow:
 
     def cleanup(self):
         """Destroy the window."""
-        self.top.destroy()
+        self.destroy()
 
 
 class App(Player):
@@ -348,9 +344,26 @@ class App(Player):
         Player.__init__(self)
         self.master = master
 
+        # Generate the UI elements
+        self.turn_frame = TurnLabelFrame(root)
+        self.turn_frame.grid(row=0, column=0)
+        self.hand_frame = HandLabelFrame(root)
+        self.hand_frame.grid(row=1, column=0)
+        self.previous_bet_frame = PreviousBetLabelFrame(root)
+        self.previous_bet_frame.grid(row=2, column=0)
+        self.console_frame = ConsoleFrame(master)
+        self.console_frame.grid(row=3, column=0)
+        self.start_button = Button(master, text="Start Game!", state=DISABLED)
+        self.start_button.grid(row=4, column=0)
+
+        # Hide the game related elements until needed
+        self.turn_frame.grid_remove()
+        self.hand_frame.grid_remove()
+        self.previous_bet_frame.grid_remove()
+
     def notification_username_request(self):
         window = UsernameWindow(self.master, self)
-        self.master.wait_window(window.top)
+        self.master.wait_window(window)
 
 
 def display_dice(master, dice_old, face_new):

@@ -368,9 +368,15 @@ class App(Player):
         self.previous_bet_frame.grid(row=2, column=0)
         self.console_frame = ConsoleFrame(master)
         self.console_frame.grid(row=3, column=0)
+        self.console_frame.columnconfigure(0, weight=1)
+        self.chat_entry = Entry(master)
+        self.chat_entry.grid(row=4, column=0)
+        self.chat_entry.columnconfigure(0, weight=1)
+        self.chat_entry.focus_set()
+        master.bind("<Return>", self.send_chat_message)
         self.start_button = Button(master, text="Start Game!", state=DISABLED,
                                    command=self.send_start)
-        self.start_button.grid(row=4, column=0)
+        self.start_button.grid(row=5, column=0)
 
         # Hide the game related elements until needed
         self.turn_frame.grid_remove()
@@ -382,6 +388,15 @@ class App(Player):
         self.player_data = []
         self.turn_username = None
         self.can_start = False
+
+    def send_chat_message(self, event):
+        """Sends the chat message in the chat window to the server.
+
+        Args:
+            event: The event sent by tkinter's frame.bind()"""
+        message = self.chat_entry.get()
+        self.send_chat(message)
+        self.chat_entry.delete(0, END)
 
     def notification_player_status(self, player_data):
         self.player_data = player_data

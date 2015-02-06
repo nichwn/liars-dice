@@ -16,6 +16,8 @@ class ConsoleHuman(Player):
         Player.__init__(self)
 
         self._display_instructions = True  # display command instructions
+        self.hand = None
+        self.can_start = False
 
     def notification_player_status(self, player_data):
 
@@ -72,8 +74,9 @@ class ConsoleHuman(Player):
 
         self._display_instructions = True
 
-    def notification_hand(self):
-        print "New hand received:\t", self.hand
+    def notification_hand(self, hand):
+        self.hand = hand
+        print "New hand received:\t", hand
 
     def notification_bet(self, face, number):
         print "Bet made."
@@ -122,6 +125,9 @@ class ConsoleHuman(Player):
         print player + " has joined the game."
         if self.can_start:
             self.start_prompt()
+
+    def notification_can_start(self):
+        self.can_start = True
 
     def notification_new_round(self):
         print "\nA new round has begun."

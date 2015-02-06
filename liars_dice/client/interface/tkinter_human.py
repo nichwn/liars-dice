@@ -381,6 +381,7 @@ class App(Player):
         self.game_started = False
         self.player_data = []
         self.turn_username = None
+        self.can_start = False
 
     def notification_player_status(self, player_data):
         self.player_data = player_data
@@ -431,8 +432,8 @@ class App(Player):
             player += "'s"
         self.console_frame.emit_line(player + " turn!")
 
-    def notification_hand(self):
-        self.hand_frame.generate_hand_display(self.hand)
+    def notification_hand(self, hand):
+        self.hand_frame.generate_hand_display(hand)
 
     def notification_bet(self, face, number):
         self.previous_bet_frame.display_previous_bet(face, number)
@@ -469,6 +470,9 @@ class App(Player):
 
     def notification_player_joined(self, player):
         self.console_frame.emit_line(player + " has joined the game.")
+
+    def notification_can_start(self):
+        self.can_start = True
 
     def notification_new_round(self):
 

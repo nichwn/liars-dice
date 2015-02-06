@@ -18,15 +18,10 @@ class Player(LineReceiver):
     Attributes:
         username: A string with the player's username, or None if the player
             does not have one.
-        hand: A list of integers containing the die faces of the player's hand,
-            or None if the player does not have one.
-        can_start: A Boolean indicating whether the player can start the game.
     """
 
     def __init__(self):
         self.username = None
-        self.hand = None
-        self.can_start = False
         self._allow_username_change = True
 
     def lineReceived(self, line):
@@ -41,8 +36,8 @@ class Player(LineReceiver):
 
         # Delegate to the appropriate method
         if command == network_command.PLAYER_HAND:
-            self._received_hand(extra)
-            self.notification_hand()
+            hand = sorted([int(die) for die in extra.split(",")])
+            self.notification_hand(hand)
 
         elif command == network_command.PLAYER_STATUS:
             player_data = [(username, int(amount)) for username, amount in
@@ -59,7 +54,6 @@ class Player(LineReceiver):
             self.notification_player_joined(extra)
 
         elif command == network_command.CAN_START:
-            self._received_can_start()
             self.notification_can_start()
 
         elif command == network_command.USERNAME:
@@ -133,16 +127,6 @@ class Player(LineReceiver):
         # Checking the conditions for starting the game is done server-side
         self.sendLine(network_command.START)
 
-    def _received_hand(self, hand):
-        # Update a player's hand based on server information.
-        #
-        # hand is a string of comma-separated face values.
-        self.hand = sorted([int(die) for die in hand.split(",")])
-
-    def _received_can_start(self):
-        # Update the flag to indicate the player can start the game
-        self.can_start = True
-
     def notification_player_status(self, player_data):
         """Respond to being provided with game status.
 
@@ -180,7 +164,7 @@ class Player(LineReceiver):
         """
         pass
 
-    def notification_hand(self):
+    def notification_hand(self, hand):
         """Respond to receiving a new hand.
 
         Intended to be overridden by subclasses (optional).

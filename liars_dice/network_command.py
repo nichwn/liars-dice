@@ -23,7 +23,7 @@ PLAYER_ELIMINATED = "eliminated"
 PLAYER_HAND = "hand"
 PLAYER_STATUS = "player_status"
 
-BET = "bet"
+BID = "bid"
 LIAR = "liar"
 SPOT_ON = "spot_on"
 

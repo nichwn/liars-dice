@@ -55,7 +55,7 @@ class ConsoleHuman(Player):
             elif len(play.split()) == 2:
                 try:
                     face, number = [int(n) for n in play.split()]
-                    self.send_bet(face, number)
+                    self.send_bid(face, number)
                     invalid = False
                 except ValueError:
                     pass
@@ -78,8 +78,8 @@ class ConsoleHuman(Player):
         self.hand = hand
         print "New hand received:\t", hand
 
-    def notification_bet(self, face, number):
-        print "Bet made."
+    def notification_bid(self, face, number):
+        print "Bid made."
         print "Face:\t" + str(face)
         print "Number:\t" + str(number)
 

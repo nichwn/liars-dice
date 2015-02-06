@@ -132,47 +132,47 @@ class TestGameStatus(TestCase):
         self.assertEqual(test_output, expected_output,
                          "incorrect for no players")
 
-    def test_handle_bet(self):
-        self.status.previous_bet = (1, 5)
-        self.status.handle_bet(2, 5)
-        self.assertEqual(self.status.previous_bet, (2, 5),
+    def test_handle_bid(self):
+        self.status.previous_bid = (1, 5)
+        self.status.handle_bid(2, 5)
+        self.assertEqual(self.status.previous_bid, (2, 5),
                          "not updated when the face is higher")
 
-        self.status.previous_bet = (3, 3)
-        self.status.handle_bet(3, 4)
-        self.assertEqual(self.status.previous_bet, (3, 4),
+        self.status.previous_bid = (3, 3)
+        self.status.handle_bid(3, 4)
+        self.assertEqual(self.status.previous_bid, (3, 4),
                          "not updated when the number is higher and the face "
                          "is the same")
 
-        self.status.previous_bet = (3, 3)
-        self.status.handle_bet(2, 4)
-        self.assertEqual(self.status.previous_bet, (2, 4),
+        self.status.previous_bid = (3, 3)
+        self.status.handle_bid(2, 4)
+        self.assertEqual(self.status.previous_bid, (2, 4),
                          "not updated when the number is higher and the face "
                          "is lower")
 
-        self.status.previous_bet = (3, 3)
-        result = self.status.handle_bet(3, 3)
-        self.assertIs(result, False, "should not accept the same bet")
+        self.status.previous_bid = (3, 3)
+        result = self.status.handle_bid(3, 3)
+        self.assertIs(result, False, "should not accept the bid")
 
-        self.status.previous_bet = (3, 3)
-        self.status.handle_bet(2, 3)
-        self.assertEqual(self.status.previous_bet, (3, 3),
-                         "accepted an invalid bet")
+        self.status.previous_bid = (3, 3)
+        self.status.handle_bid(2, 3)
+        self.assertEqual(self.status.previous_bid, (3, 3),
+                         "accepted an invalid bid")
 
     def test_handle_liar(self):
         self.status._turn_player_index = 0
         self.status.add_player("test2")
         self.status._dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
 
-        self.status.handle_bet(2, 4)
+        self.status.handle_bid(2, 4)
         self.assertEqual(self.status.handle_liar(), ("test", False),
                          "wrong player (incorrect guess)")
 
-        self.status.handle_bet(2, 5)
+        self.status.handle_bid(2, 5)
         self.assertEqual(self.status.handle_liar(), ("test2", False),
                          "wrong player (correct guess)")
 
-        self.status.handle_bet(2, 4)
+        self.status.handle_bid(2, 4)
         self.status.players["test2"].hand = [Die()]
         self.assertEqual(self.status.handle_liar(), ("test2", True),
                          "player should be eliminated")
@@ -182,16 +182,16 @@ class TestGameStatus(TestCase):
         self.status.add_player("test2")
         self.status._dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
 
-        self.status.handle_bet(2, 4)
+        self.status.handle_bid(2, 4)
         self.assertEqual(self.status.handle_spot_on(), ("test2", False),
                          "wrong player (correct guess)")
 
-        self.status.handle_bet(2, 5)
+        self.status.handle_bid(2, 5)
         self.assertEqual(self.status.handle_spot_on(), ("test", False),
                          "wrong player (incorrect guess)")
 
         self.status._turn_player_index = 0
-        self.status.handle_bet(6, 20)
+        self.status.handle_bid(6, 20)
         self.status.players["test"].hand = [Die()]
         self.assertEqual(self.status.handle_spot_on(), ("test", True),
                          "player should be eliminated")

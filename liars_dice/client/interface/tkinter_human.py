@@ -124,9 +124,9 @@ class PlayWindow(Toplevel):
         spot_on = Button(self, text="Spot On!",
                          command=self.pressed_spot_on)
         spot_on.pack(side=TOP)
-        self.bet_button = Button(self, text="Bet!", state=DISABLED,
-                                 command=self.pressed_bet)
-        self.bet_button.pack(side=TOP)
+        self.bid_button = Button(self, text="Bid!", state=DISABLED,
+                                 command=self.pressed_bid)
+        self.bid_button.pack(side=TOP)
 
         # Colour to change buttons to when clicked
         self.selectedbg = "#00ffff"
@@ -158,13 +158,13 @@ class PlayWindow(Toplevel):
             die.configure(bg=self.defaultbg)
         buttons[selected_index].configure(bg=self.selectedbg)
 
-    def check_bet_possible(self):
-        """Enables the 'Bet!' button if the player has selected what bet
+    def check_bid_possible(self):
+        """Enables the 'Bid!' button if the player has selected what bid
         they'd like to send.
         """
         if (self.face_selected is not None and
                 self.number_selected is not None):
-            self.bet_button.configure(state=NORMAL)
+            self.bid_button.configure(state=NORMAL)
 
     def face_click(self, selected_index):
         """Stores the face value when a dice face button is pressed, and
@@ -176,7 +176,7 @@ class PlayWindow(Toplevel):
         """
         self.face_selected = selected_index + 1
         self.background_click(self.dice_buttons, selected_index)
-        self.check_bet_possible()
+        self.check_bid_possible()
 
     def number_click(self, selected_index):
         """Stores the face value when a dice face button is pressed, and
@@ -188,7 +188,7 @@ class PlayWindow(Toplevel):
         """
         self.number_selected = selected_index + 1
         self.background_click(self.number_buttons, selected_index)
-        self.check_bet_possible()
+        self.check_bid_possible()
 
     def position_widget(self, widget):
         """Return the row and column position of a widget in a multi-row, two
@@ -269,9 +269,9 @@ class PlayWindow(Toplevel):
         self.client.send_spot_on()
         self.post_action()
 
-    def pressed_bet(self):
-        """Submit a 'Bet' action."""
-        self.client.send_bet(self.face_selected, self.number_selected)
+    def pressed_bid(self):
+        """Submit a 'Bid' action."""
+        self.client.send_bid(self.face_selected, self.number_selected)
         self.post_action()
 
     def post_action(self):
@@ -280,23 +280,23 @@ class PlayWindow(Toplevel):
         self.destroy()
 
 
-class PreviousBetLabelFrame(LabelFrame):
-    """A label frame displaying the latest bet played."""
+class PreviousBidLabelFrame(LabelFrame):
+    """A label frame displaying the latest bid played."""
 
     def __init__(self, master, **kwargs):
         LabelFrame.__init__(self, master, **kwargs)
-        self.configure(text="Previous Bet")
+        self.configure(text="Previous Bid")
 
         self._dice = []
 
-    def display_previous_bet(self, face, number):
-        """Displays the bet.
+    def display_previous_bid(self, face, number):
+        """Displays the bid.
 
         Args:
             face: An integer with the face of the die, or None if there is no
-                previous bet.
+                previous bid.
             number: An inteer with number of the die, or None if there is no
-                previous bet.
+                previous bid.
         """
         if face is not None and number is not None:
 
@@ -365,8 +365,8 @@ class App(Player):
         self.turn_frame.grid(row=0, column=0)
         self.hand_frame = HandLabelFrame(master)
         self.hand_frame.grid(row=1, column=0)
-        self.previous_bet_frame = PreviousBetLabelFrame(master)
-        self.previous_bet_frame.grid(row=2, column=0)
+        self.previous_bid_frame = PreviousBidLabelFrame(master)
+        self.previous_bid_frame.grid(row=2, column=0)
         self.console_frame = ConsoleFrame(master)
         self.console_frame.grid(row=3, column=0)
         self.console_frame.columnconfigure(0, weight=1)
@@ -382,7 +382,7 @@ class App(Player):
         # Hide the game related elements until needed
         self.turn_frame.grid_remove()
         self.hand_frame.grid_remove()
-        self.previous_bet_frame.grid_remove()
+        self.previous_bid_frame.grid_remove()
 
         # Game status
         self.game_started = False
@@ -451,14 +451,14 @@ class App(Player):
     def notification_hand(self, hand):
         self.hand_frame.generate_hand_display(hand)
 
-    def notification_bet(self, face, number):
-        self.previous_bet_frame.display_previous_bet(face, number)
+    def notification_bid(self, face, number):
+        self.previous_bid_frame.display_previous_bid(face, number)
 
         out_face = str(face)
         if number != 1:
             out_face = str(face) + "s"
         out_number = str(number)
-        self.console_frame.emit_line("{} bet {} {}.".format(self.turn_username,
+        self.console_frame.emit_line("{} bid {} {}.".format(self.turn_username,
                                                             out_number,
                                                             out_face))
 
@@ -498,10 +498,10 @@ class App(Player):
             self.game_started = True
             self.turn_frame.grid()
             self.hand_frame.grid()
-            self.previous_bet_frame.grid()
+            self.previous_bid_frame.grid()
             self.start_button.destroy()
 
-        self.previous_bet_frame.display_previous_bet(1, 0)
+        self.previous_bid_frame.display_previous_bid(1, 0)
 
         self.console_frame.emit_line("New round!")
 

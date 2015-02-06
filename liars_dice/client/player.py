@@ -13,7 +13,7 @@ class Player(LineReceiver):
     """A player instance.
 
     This class is intended to be subclassed by more specific player
-    instances, such as humans or an AI instance.
+    instances, such as humans or bot client.
 
     Attributes:
         username: A string with the player's username, or None if the player
@@ -63,9 +63,9 @@ class Player(LineReceiver):
         elif command == network_command.PLAY:
             self.notification_play_request()
 
-        elif command == network_command.BET:
+        elif command == network_command.BID:
             face, number = [int(n) for n in extra.split(",")]
-            self.notification_bet(face, number)
+            self.notification_bid(face, number)
 
         elif command == network_command.SPOT_ON:
             self.notification_spot_on()
@@ -114,14 +114,14 @@ class Player(LineReceiver):
         """Send the server a "Spot On" action."""
         self.sendLine(network_command.SPOT_ON)
 
-    def send_bet(self, face, number):
-        """Send the server the player's bet.
+    def send_bid(self, face, number):
+        """Send the server the player's bid.
 
         Args:
-            face: An integer with the die value bet.
-            number: An integer with the number of dice bet.
+            face: An integer with the die value bid.
+            number: An integer with the number of dice bid.
         """
-        self.sendLine(network_command.BET + network_command.DELIMITER + str(
+        self.sendLine(network_command.BID + network_command.DELIMITER + str(
             face) + "," + str(number))
 
     def send_start(self):
@@ -177,21 +177,21 @@ class Player(LineReceiver):
         """Respond to receiving a new hand."""
         pass
 
-    def notification_bet(self, face, number):
-        """Respond to the current turn player making a standard bet.
+    def notification_bid(self, face, number):
+        """Respond to the current turn player making a standard bid.
 
         Args:
-            face: An integer with the die value bet.
-            number: An integer with the number of dice bet.
+            face: An integer with the die value bid.
+            number: An integer with the number of dice bid.
         """
         pass
 
     def notification_spot_on(self):
-        """Respond to the current turn player making a "Spot On" bet."""
+        """Respond to the current turn player making a "Spot On" bid."""
         pass
 
     def notification_liar(self):
-        """Respond to the current turn player making a "Liar" bet."""
+        """Respond to the current turn player making a "Liar" bid."""
         pass
 
     def notification_player_lost_die(self, player):

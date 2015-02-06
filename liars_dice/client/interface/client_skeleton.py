@@ -28,7 +28,7 @@ class YourClientName(Player):
         # To submit your action choose one of the following:
         #   liar --> self.send_liar()
         #   spot on --> self.send_spot_on()
-        #   bet --> self.send_bet(face, number)
+        #   bid --> self.send_bid(face, number)
         raise NotImplementedError
 
     def notification_next_turn(self, player):
@@ -37,7 +37,7 @@ class YourClientName(Player):
     def notification_hand(self, hand):
         pass
 
-    def notification_bet(self, face, number):
+    def notification_bid(self, face, number):
         pass
 
     def notification_spot_on(self):

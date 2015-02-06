@@ -65,8 +65,8 @@ class GameStatus:
         players: A dictionary of strings of players mapping to their
             corresponding Hand object.
         player_order: A list of players in turn order
-        previous_bet: A tuple of 2 integers, indicating the die face and
-            number of the previous bet.
+        previous_bid: A tuple of 2 integers, indicating the die face and
+            number of the previous bid.
         game_running: A Boolean indicating whether the game is still
             running.
     """
@@ -77,7 +77,7 @@ class GameStatus:
         self._round_player_index = -1  # used in round-related methods
         self._turn_player_index = -1  # used in round and turn-related methods
         self._dice_count = collections.Counter()
-        self.previous_bet = None  # after bets are made, will be (face, number)
+        self.previous_bid = None  # after bids are made, will be (face, number)
         self.game_running = True
 
     def remove_die(self, player):
@@ -193,30 +193,30 @@ class GameStatus:
         return [(player, len(self.players[player].hand))
                 for player in self.player_order]
 
-    def handle_bet(self, face, number):
-        """Resolve bets made by the turn player.
+    def handle_bid(self, face, number):
+        """Resolve bids made by the turn player.
 
         Args:
-            face: An integer with the die value bet.
-            number: An integer with the number of dice bet.
+            face: An integer with the die value bid.
+            number: An integer with the number of dice bid.
 
         Returns:
-            A Boolean indicating whether the bet was valid.
+            A Boolean indicating whether the bid was valid.
         """
-        # Grab previous bet
-        if self.previous_bet is not None:
-            old_face, old_number = self.previous_bet
+        # Grab previous bid
+        if self.previous_bid is not None:
+            old_face, old_number = self.previous_bid
         else:
             # allows any combination of face and number that are in the
             # valid range
             old_face, old_number = (-1, -1)
 
-        # Handle the current bet
+        # Handle the current bid
         valid_range = number >= 1 and 1 <= face <= 6
-        allowed_bet = (number > old_number or
+        allowed_bid = (number > old_number or
                        (face > old_face and number == old_number))
-        if valid_range and allowed_bet:
-            self.previous_bet = (face, number)
+        if valid_range and allowed_bid:
+            self.previous_bid = (face, number)
             return True
         else:
             return False
@@ -230,11 +230,11 @@ class GameStatus:
             last die and has hence been eliminated.
 
         Raises:
-            RuntimeError: No previous bet has been made.
+            RuntimeError: No previous bid has been made.
         """
-        if self.previous_bet is None:
-            raise RuntimeError("No previous bet has been made.")
-        face, number = self.previous_bet
+        if self.previous_bid is None:
+            raise RuntimeError("No previous bid has been made.")
+        face, number = self.previous_bid
 
         if number <= self._dice_count[face]:
             player = self.turn_player()
@@ -253,11 +253,11 @@ class GameStatus:
             last die and has hence been eliminated.
 
         Raises:
-            RuntimeError: No previous bet has been made.
+            RuntimeError: No previous bid has been made.
         """
-        if self.previous_bet is None:
-            raise RuntimeError("No previous bet has been made.")
-        face, number = self.previous_bet
+        if self.previous_bid is None:
+            raise RuntimeError("No previous bid has been made.")
+        face, number = self.previous_bid
 
         if number != self._dice_count[face]:
             player = self.turn_player()

@@ -102,9 +102,9 @@ class SimpleBot(Player):
             else:
                 face = randint(self.previous_number, self.MAX_FACE)
 
-        self.send_bet(face, number)
+        self.send_bid(face, number)
 
-    def notification_bet(self, face, number):
+    def notification_bid(self, face, number):
         self.previous_face = face
         self.previous_number = number
 

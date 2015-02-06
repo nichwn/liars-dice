@@ -41,12 +41,12 @@ class LiarsGame(LineReceiver):
         # These commands can only be performed by the turn player
         elif self.factory.game.turn_player() == self._username:
             if command in (network_command.SPOT_ON, network_command.LIAR):
-                self.handle_non_bet(command)
+                self.handle_non_bid(command)
 
-            elif command == network_command.BET:
+            elif command == network_command.BID:
                 face, number = [int(x) for x in extra.split(",")]
 
-                if self.factory.game.handle_bet(face, number):
+                if self.factory.game.handle_bid(face, number):
                     log.msg("Turn player made the prediction: " + line)
                     self.send_message(line)
                     self.next_turn()
@@ -167,8 +167,8 @@ class LiarsGame(LineReceiver):
         self.send_message(network_command.CAN_START,
                           [self.factory.game.player_order[0]])
 
-    def handle_non_bet(self, command):
-        """Manage player actions that do not involve betting.
+    def handle_non_bid(self, command):
+        """Manage player actions that do not involve bidding..
 
         Args:
             command: network_command.SPOT_ON or network_command.LIAR
@@ -201,7 +201,7 @@ class LiarsGame(LineReceiver):
                 self.next_round()
 
         except RuntimeError:
-            # No previous bet
+            # No previous bid
             self.send_message(network_command.PLAY,
                               [self.factory.game.turn_player()])
 
@@ -216,8 +216,8 @@ class LiarsGame(LineReceiver):
         self.send_player_status()
         self.send_player_hand()
 
-        # Reset the previous bet
-        self.factory.game.previous_bet = None
+        # Reset the previous bid
+        self.factory.game.previous_bid = None
 
         # Announce the player whose turn it is
         next_player = self.factory.game.turn_player()

@@ -336,6 +336,7 @@ class UsernameWindow(Toplevel):
         self.username_entry.focus_set()
         self.submit = Button(self, text="Submit", command=self.send_username)
         self.submit.pack()
+        self.bind("<Return>", self.send_username)
 
         # Whether the user has submitted their action
         self.submitted = False
@@ -344,7 +345,7 @@ class UsernameWindow(Toplevel):
         self.transient(master)
         self.grab_set()
 
-    def send_username(self):
+    def send_username(self, event=None):
         username = self.username_entry.get().replace(network_command.DELIMITER,
                                                      "")
         self.client.send_name(username)

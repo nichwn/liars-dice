@@ -138,6 +138,9 @@ class PlayWindow(Toplevel):
         self.face_selected = None
         self.number_selected = None
 
+        # Whether the user has submitted an action
+        self.submitted = False
+
         # Take focus
         self.transient(master)
         self.grab_set()
@@ -259,20 +262,21 @@ class PlayWindow(Toplevel):
     def pressed_liar(self):
         """Submit a 'Liar' action."""
         self.client.send_liar()
-        self.cleanup()
+        self.post_action()
 
     def pressed_spot_on(self):
         """Submit a 'Spot On' action."""
         self.client.send_spot_on()
-        self.cleanup()
+        self.post_action()
 
     def pressed_bet(self):
         """Submit a 'Bet' action."""
         self.client.send_bet(self.face_selected, self.number_selected)
-        self.cleanup()
+        self.post_action()
 
-    def cleanup(self):
-        """Destroy the window."""
+    def post_action(self):
+        """Cleanup to be performed after a submitted action."""
+        self.submitted = True
         self.destroy()
 
 
@@ -333,6 +337,9 @@ class UsernameWindow(Toplevel):
         self.submit = Button(self, text="Submit", command=self.send_username)
         self.submit.pack()
 
+        # Whether the user has submitted their action
+        self.submitted = False
+
         # Take focus
         self.transient(master)
         self.grab_set()
@@ -341,10 +348,7 @@ class UsernameWindow(Toplevel):
         username = self.username_entry.get().replace(network_command.DELIMITER,
                                                      "")
         self.client.send_name(username)
-        self.cleanup()
-
-    def cleanup(self):
-        """Destroy the window."""
+        self.submitted = True
         self.destroy()
 
 
@@ -395,9 +399,19 @@ class App(Player):
         window = UsernameWindow(self.master, self)
         self.master.wait_window(window)
 
+        # Prevent user from shutting down the window without submitting their
+        # username
+        if not window.submitted:
+            self.notification_username_request()
+
     def notification_play_request(self):
         window = PlayWindow(self.master, self)
         self.master.wait_window(window)
+
+        # Prevent user from shutting down the window without submitting their
+        # username
+        if not window.submitted:
+            self.notification_play_request()
 
     def notification_next_turn(self, player):
         self.turn_username = player

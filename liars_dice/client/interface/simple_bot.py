@@ -98,9 +98,9 @@ class SimpleBot(Player):
                 must_increase_face = True
 
             if must_increase_face:
-                face = randint(self.previous_number + 1, self.MAX_FACE)
+                face = randint(self.previous_face + 1, self.MAX_FACE)
             else:
-                face = randint(self.previous_number, self.MAX_FACE)
+                face = randint(self.previous_face, self.MAX_FACE)
 
         self.send_bid(face, number)
 

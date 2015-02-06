@@ -91,7 +91,7 @@ class Player(LineReceiver):
             message = extra[delim + 1:]
             self.notification_chat(username, message)
 
-    def send_name(self, username):
+    def send_username(self, username):
         """Register the player's username with the server.
 
         Args:
@@ -168,24 +168,17 @@ class Player(LineReceiver):
     def notification_next_turn(self, player):
         """Respond to the next turn being declared.
 
-        Intended to be overridden by subclasses (optional).
-
         Args:
             player: A string with the player's username whose turn it is.
         """
         pass
 
     def notification_hand(self, hand):
-        """Respond to receiving a new hand.
-
-        Intended to be overridden by subclasses (optional).
-        """
+        """Respond to receiving a new hand."""
         pass
 
     def notification_bet(self, face, number):
         """Respond to the current turn player making a standard bet.
-
-        Intended to be overridden by subclasses (optional).
 
         Args:
             face: An integer with the die value bet.
@@ -194,23 +187,15 @@ class Player(LineReceiver):
         pass
 
     def notification_spot_on(self):
-        """Respond to the current turn player making a "Spot On" bet.
-
-        Intended to be overridden by subclasses (optional).
-        """
+        """Respond to the current turn player making a "Spot On" bet."""
         pass
 
     def notification_liar(self):
-        """Respond to the current turn player making a "Liar" bet.
-
-        Intended to be overridden by subclasses (optional).
-        """
+        """Respond to the current turn player making a "Liar" bet."""
         pass
 
     def notification_player_lost_die(self, player):
         """Respond to a player losing a die.
-
-        Intended to be overridden by subclasses (optional).
 
         Args:
             player: A string with the player's username whose turn it is.
@@ -220,8 +205,6 @@ class Player(LineReceiver):
     def notification_eliminated(self, player):
         """Respond to a player being eliminated from the game.
 
-        Intended to be overridden by subclasses (optional).
-
         Args:
             player: A string with the player's username whose turn it is.
         """
@@ -229,8 +212,6 @@ class Player(LineReceiver):
 
     def notification_player_left(self, player):
         """Respond to a player leaving the game.
-
-        Intended to be overridden by subclasses (optional).
 
         Args:
             player: A string with the player's username whose turn it is.
@@ -240,22 +221,20 @@ class Player(LineReceiver):
     def notification_player_joined(self, player):
         """Respond to a player joining the game.
 
-        Intended to be overridden by subclasses (optional).
-
         Args:
             player: A string with the player's username whose turn it is.
         """
         pass
 
     def notification_can_start(self):
-        """Respond to being informed that one can start the game."""
-        pass
+        """Respond to being informed that one can start the game.
+
+        Must be overridden by subclasses.
+        """
+        raise NotImplementedError
 
     def notification_new_round(self):
-        """Respond to a new round commencing.
-
-        Intended to be overridden by subclasses (optional).
-        """
+        """Respond to a new round commencing."""
         pass
 
     def notification_winner(self, player):
@@ -263,8 +242,6 @@ class Player(LineReceiver):
 
         Args:
             player: A string with the player's username whose turn it is.
-
-        Intended to be overridden by subclasses (optional).
         """
         pass
 

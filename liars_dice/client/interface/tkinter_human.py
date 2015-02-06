@@ -348,7 +348,7 @@ class UsernameWindow(Toplevel):
     def send_username(self, event=None):
         username = self.username_entry.get().replace(network_command.DELIMITER,
                                                      "")
-        self.client.send_name(username)
+        self.client.send_username(username)
         self.submitted = True
         self.destroy()
 
@@ -361,11 +361,11 @@ class App(Player):
         self.master = master
 
         # Generate the UI elements
-        self.turn_frame = TurnLabelFrame(root)
+        self.turn_frame = TurnLabelFrame(master)
         self.turn_frame.grid(row=0, column=0)
-        self.hand_frame = HandLabelFrame(root)
+        self.hand_frame = HandLabelFrame(master)
         self.hand_frame.grid(row=1, column=0)
-        self.previous_bet_frame = PreviousBetLabelFrame(root)
+        self.previous_bet_frame = PreviousBetLabelFrame(master)
         self.previous_bet_frame.grid(row=2, column=0)
         self.console_frame = ConsoleFrame(master)
         self.console_frame.grid(row=3, column=0)
@@ -540,8 +540,7 @@ def display_dice(master, dice_old, face_new):
     return dice
 
 
-if __name__ == "__main__":
-
+def run():
     # GUI Settings
     root = Tk()
     root.title("Liar's Dice Client")
@@ -554,7 +553,10 @@ if __name__ == "__main__":
     tksupport.install(root)
 
     # Connection
-    HOST = config_parse.host
-    PORT = config_parse.port
-    reactor.connectTCP(HOST, PORT, player_factory)
+    host = config_parse.host
+    port = config_parse.port
+    reactor.connectTCP(host, port, player_factory)
     reactor.run()
+
+if __name__ == "__main__":
+    run()

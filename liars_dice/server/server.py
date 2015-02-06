@@ -294,6 +294,10 @@ class LiarGameFactory(Factory):
         self.game_started = False
 
 
-log.startLogging(sys.stdout)
-reactor.listenTCP(config_parse.port, LiarGameFactory())
-reactor.run()
+def run():
+    log.startLogging(sys.stdout)
+    reactor.listenTCP(config_parse.port, LiarGameFactory())
+    reactor.run()
+
+if __name__ == "__main__":
+    run()

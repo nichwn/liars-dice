@@ -29,7 +29,7 @@ class ConsoleHuman(Player):
     def notification_username_request(self):
         print "Username requested."
         username = raw_input("Username: ")
-        self.send_name(username)
+        self.send_username(username)
         print
 
     def notification_play_request(self):
@@ -142,8 +142,11 @@ class ConsoleHuman(Player):
             print "You've won the game! Congratulations!"
 
 
-if __name__ == "__main__":
-    HOST = config_parse.host
-    PORT = config_parse.port
-    reactor.connectTCP(HOST, PORT, PlayerFactory(ConsoleHuman()))
+def run():
+    host = config_parse.host
+    port = config_parse.port
+    reactor.connectTCP(host, port, PlayerFactory(ConsoleHuman()))
     reactor.run()
+
+if __name__ == "__main__":
+    run()

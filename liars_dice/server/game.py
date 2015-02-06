@@ -29,7 +29,7 @@ class Hand:
     Attributes:
         hand: A list containing the dice in a player's hand.
     """
-    INITIAL_HAND_SIZE = 6
+    INITIAL_HAND_SIZE = 5
 
     def __init__(self):
         self.hand = []

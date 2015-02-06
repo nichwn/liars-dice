@@ -55,7 +55,7 @@ class SimpleBot(Player):
         self._total_dice = sum(n for _, n in player_data)
 
     def notification_username_request(self):
-        self.send_name(self.desired_username)
+        self.send_username(self.desired_username)
 
         # Add an underscore in case the username is taken and a new username
         # has to be resent
@@ -134,8 +134,11 @@ def random_boolean(true_chance):
     return true_chance > random()
 
 
-if __name__ == "__main__":
-    HOST = config_parse.host
-    PORT = config_parse.port
-    reactor.connectTCP(HOST, PORT, PlayerFactory(SimpleBot()))
+def run():
+    host = config_parse.host
+    port = config_parse.port
+    reactor.connectTCP(host, port, PlayerFactory(SimpleBot()))
     reactor.run()
+
+if __name__ == "__main__":
+    run()

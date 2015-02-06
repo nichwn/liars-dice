@@ -35,6 +35,9 @@ class LiarsGame(LineReceiver):
         elif command == network_command.START:
             self._received_start()
 
+        elif command == network_command.CHAT:
+            self._received_chat(extra)
+
         # These commands can only be performed by the turn player
         elif self.factory.game.turn_player() == self._username:
             if command in (network_command.SPOT_ON, network_command.LIAR):
@@ -84,11 +87,11 @@ class LiarsGame(LineReceiver):
                 self.send_can_start()
 
     def _received_username(self, username):
-        """Set the client's username. Usernames cannot be changed once set.
+        # Set the client's username. Usernames cannot be changed once set.
+        #
+        # Args:
+        #    username: A string with the username of the client.
 
-        Args:
-            username: A string with the username of the client.
-        """
         if (username not in self.factory.clients and username and
                 self._username is None):
             self.factory.clients[username] = self
@@ -112,7 +115,8 @@ class LiarsGame(LineReceiver):
             self.sendLine(network_command.USERNAME)
 
     def _received_start(self):
-        """Start the game."""
+        # Start the game.
+
         i = self.factory.game.player_order.index(self._username)
 
         # Only the first, still active, player can start the game
@@ -129,6 +133,12 @@ class LiarsGame(LineReceiver):
                                  "either did not have permission to do so, "
                                  "there were not enough players to start "
                                  "the game, or the game had already begun.")
+
+    def _received_chat(self, message):
+        # Relays all chat messages to the clients.
+
+        self.send_message(network_command.CHAT + network_command.DELIMITER +
+                          self._username + "," + message)
 
     def send_message(self, message, client_usernames=None):
         """Send a message to all connected clients.

@@ -26,3 +26,5 @@ PLAYER_STATUS = "player_status"
 BET = "bet"
 LIAR = "liar"
 SPOT_ON = "spot_on"
+
+CHAT = "chat"

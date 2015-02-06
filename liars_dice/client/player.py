@@ -85,6 +85,12 @@ class Player(LineReceiver):
         elif command == network_command.WINNER:
             self.notification_winner(extra)
 
+        elif command == network_command.CHAT:
+            delim = extra.index(",")
+            username = extra[:delim]
+            message = extra[delim + 1:]
+            self.notification_chat(username, message)
+
     def send_name(self, username):
         """Register the player's username with the server.
 
@@ -126,6 +132,11 @@ class Player(LineReceiver):
         """
         # Checking the conditions for starting the game is done server-side
         self.sendLine(network_command.START)
+
+    def send_chat(self, message):
+        """Send a chat message to the server."""
+        self.sendLine(network_command.CHAT + network_command.DELIMITER +
+                      message)
 
     def notification_player_status(self, player_data):
         """Respond to being provided with game status.
@@ -254,6 +265,15 @@ class Player(LineReceiver):
             player: A string with the player's username whose turn it is.
 
         Intended to be overridden by subclasses (optional).
+        """
+        pass
+
+    def notification_chat(self, username, message):
+        """Respond to receiving a chat message.
+
+        Args:
+            username: A string with the username of the sender.
+            message: A string containing the message.
         """
         pass
 

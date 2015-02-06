@@ -492,6 +492,9 @@ class App(Player):
     def notification_winner(self, player):
         self.console_frame.emit_line(player + " has won the game!")
 
+    def notification_chat(self, username, message):
+        self.console_frame.emit_line("{}: {}".format(username, message))
+
 
 def display_dice(master, dice_old, face_new):
     """Displays dice in a frame horizontally.

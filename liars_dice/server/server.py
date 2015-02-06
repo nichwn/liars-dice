@@ -89,7 +89,8 @@ class LiarsGame(LineReceiver):
         Args:
             username: A string with the username of the client.
         """
-        if username not in self.factory.clients and self._username is None:
+        if (username not in self.factory.clients and username and
+                self._username is None):
             self.factory.clients[username] = self
             self.factory.game.add_player(username)
             log.msg(username + " joined the game.")
@@ -105,6 +106,9 @@ class LiarsGame(LineReceiver):
         elif username in self.factory.clients:
             log.msg("A client attempted to join as '" + username +
                     "' but the username had already been taken.")
+            self.sendLine(network_command.USERNAME)
+        elif not username:
+            log.msg("A client attempted to join with an empty username.")
             self.sendLine(network_command.USERNAME)
 
     def _received_start(self):

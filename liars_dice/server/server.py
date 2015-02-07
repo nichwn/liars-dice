@@ -17,6 +17,8 @@ class LiarsGame(LineReceiver):
     """Handle client communication and game running."""
 
     def __init__(self):
+
+        # Username associated with the client of this protocol instance.
         self._username = None
 
     def lineReceived(self, line):
@@ -136,12 +138,15 @@ class LiarsGame(LineReceiver):
 
     def _received_chat(self, message):
         # Relays all chat messages to the clients.
+        #
+        # Args:
+        #     A string with the message received.
 
         self.send_message(network_command.CHAT + network_command.DELIMITER +
                           self._username + "," + message)
 
     def send_message(self, message, client_usernames=None):
-        """Send a message to all connected clients.
+        """Send a message to connected clients.
 
         Args:
             message: A string with the message to be sent.
@@ -158,9 +163,7 @@ class LiarsGame(LineReceiver):
                 self.factory.clients[username].sendLine(message)
 
     def send_can_start(self):
-        """Send a message informing the client who can start the game that they
-        can start it.
-        """
+        """Send a message informing the client that they can start the game."""
         can_start_player = self.factory.game.player_order[0]
         log.msg("Informing " + can_start_player +
                 " that they can start the game...")
@@ -240,7 +243,7 @@ class LiarsGame(LineReceiver):
         """Checks if a player has won the game.
 
         If a player has won, informs all clients of their victory,
-        disconnects them, and stops the reactor.
+        and disconnects them. A new game is then started.
 
         Returns:
             A Boolean indicating whether a player has won the game.
@@ -285,7 +288,14 @@ class LiarsGame(LineReceiver):
 
 
 class LiarGameFactory(Factory):
-    """Handle client connections and store the game status."""
+    """Handle client connections and store the game status.
+
+    Attributes:
+        clients: A dictionary of strings -> protocols. Where the strings are
+            usernames, and the protocols clients registered with the server.
+        game: A GameStatus object with the current game situation.
+        game_started: A Boolean indicating whether the game has started.
+    """
     protocol = LiarsGame
 
     def __init__(self):
@@ -295,6 +305,7 @@ class LiarGameFactory(Factory):
 
 
 def run():
+    """Run the server."""
     log.startLogging(sys.stdout)
     reactor.listenTCP(config_parse.port, LiarGameFactory())
     reactor.run()

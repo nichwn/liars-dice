@@ -19,7 +19,7 @@ class Die:
         self.roll()
 
     def roll(self):
-        """Roll the die."""
+        """Roll the die. Changes the value of the face attribute."""
         self.face = randint(1, 6)
 
 
@@ -64,7 +64,8 @@ class GameStatus:
     Args:
         players: A dictionary of strings of players mapping to their
             corresponding Hand object.
-        player_order: A list of players in turn order
+        player_order: A list of players in turn order. However, the turn player
+            is not necessarily the first element.
         previous_bid: A tuple of 2 integers, indicating the die face and
             number of the previous bid.
         game_running: A Boolean indicating whether the game is still
@@ -164,6 +165,9 @@ class GameStatus:
     def turn_player_previous(self):
         """Determine the player whose turn it was last turn.
 
+        Calling this immediately after a new round has begun will give an
+        incorrect result.
+
         Returns:
             A string with the username of the previous turn player.
         """
@@ -174,7 +178,7 @@ class GameStatus:
         """Provide information on player hands.
 
         Returns:
-            A generator of (string, list of integers) tuples, of player
+            A sequence of (string, list of integers) tuples, of player
             usernames and the face value of the dice in their hand.
         """
         return ((player, self.players[player].die_face())
@@ -188,7 +192,7 @@ class GameStatus:
             followed by the number of dice they have.
 
             The order is in turn order, but the first player does not
-            necessarily correspond with the next player to play.
+            necessarily correspond with the turn player.
         """
         return [(player, len(self.players[player].hand))
                 for player in self.player_order]

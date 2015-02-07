@@ -78,6 +78,7 @@ class YourClientName(Player):
 
 
 def run():
+    """Run the client."""
     # Grab the host and client from liars_dice/config.ini
     host = config_parse.host
     port = config_parse.port

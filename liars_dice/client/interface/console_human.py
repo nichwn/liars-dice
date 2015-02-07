@@ -10,12 +10,18 @@ from liars_dice.client.player import Player, PlayerFactory
 
 
 class ConsoleHuman(Player):
-    """A player instance."""
+    """A player instance.
+
+    Attributes:
+        hand: A list of integers, consisting of the player's hand, or None if
+            the player does not have one.
+        can_start: A Boolean indicating whether the player can start the game.
+    """
 
     def __init__(self):
         Player.__init__(self)
 
-        self._display_instructions = True  # display command instructions
+        self._display_instructions = True  # display instructions on how to play
         self.hand = None
         self.can_start = False
 
@@ -143,6 +149,7 @@ class ConsoleHuman(Player):
 
 
 def run():
+    """Run the client."""
     host = config_parse.host
     port = config_parse.port
     reactor.connectTCP(host, port, PlayerFactory(ConsoleHuman()))

@@ -23,6 +23,7 @@ Bot strategy:
             30% -> increase number of dice by 1
 
         pick random valid face
+
 """
 from random import randint, random
 from twisted.internet import reactor
@@ -37,8 +38,8 @@ class SimpleBot(Player):
         previous_face: An integer with the face the previous bet made.
         previous_number: An inteer with the number of dice the previous bet
             made.
-        desired_username: The name the bot will be referred to by the server.
-            If taken, will append underscores until accepted.
+        desired_username: A string with the username the bot will be referred
+            to by the server. If taken, will append underscores until accepted.
     """
     MIN_FACE = 1
     MAX_FACE = 6
@@ -49,7 +50,10 @@ class SimpleBot(Player):
         self.previous_face = None
         self.previous_number = None
         self.desired_username = "Simple Bot"
-        self._total_dice = None  # this value is unused - set later
+
+        # An integer with the number of dice all players have.
+        # The initialised value is unused and set later.
+        self._total_dice = None
 
     def notification_player_status(self, player_data):
         self._total_dice = sum(n for _, n in player_data)
@@ -135,6 +139,7 @@ def random_boolean(true_chance):
 
 
 def run():
+    """Run the bot."""
     host = config_parse.host
     port = config_parse.port
     reactor.connectTCP(host, port, PlayerFactory(SimpleBot()))

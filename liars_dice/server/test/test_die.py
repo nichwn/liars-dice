@@ -8,6 +8,7 @@ class TestDie(TestCase):
         self.die = Die()
 
     def test_roll(self):
+        # Appropriate roll values
         self.die.roll()
         self.assertGreaterEqual(self.die.face, 1, "value less than 1")
         self.assertLessEqual(self.die.face, 6, "value greater than 6")

@@ -274,4 +274,3 @@ class PlayerFactory(ClientFactory):
 
     def clientConnectionFailed(self, connector, reason):
         print "Failed to connect. Reason:", reason
-

@@ -12,6 +12,7 @@ class TestGameStatus(TestCase):
             self.status.players["test"].die_face())
 
     def test_remove_die(self):
+        # Correct removing of die and player dice pool tracking
         old_len = len(self.status.players["test"].hand)
         self.status.remove_die("test")
         new_len = len(self.status.players["test"].hand)
@@ -20,6 +21,7 @@ class TestGameStatus(TestCase):
         self.assertEqual(self.status._dice_count, collections.Counter(
             self.status.players["test"].die_face()), "incorrect dice tally")
 
+        # Check removal of players if they run out of dice
         self.status = GameStatus()
         self.status.players["singledie"] = Hand()
         self.status.players["singledie"].hand = [Die()]
@@ -31,6 +33,7 @@ class TestGameStatus(TestCase):
                          "did not adjust the player_order")
 
     def test_add_player(self):
+        # Adding players correctly and integrating them within the game
         old_count = len(self.status.players)
         self.status.add_player("test2")
         new_count = len(self.status.players)
@@ -52,6 +55,8 @@ class TestGameStatus(TestCase):
         self.assertEqual(len(self.status.player_order), 2,
                          "test case setup does not have the expected two "
                          "player turn order")
+
+        # Player removal as well as effects on game tracking
         self.status.remove_player("test2")
         self.assertEqual(self.status._dice_count, collections.Counter(
             self.status.players["test"].die_face()), "incorrect dice tally "
@@ -80,6 +85,7 @@ class TestGameStatus(TestCase):
                          "incorrect dice tally for no players")
 
     def test_roll_all(self):
+        # Check that rolling the dice of all players is done correctly
         old_count = len(self.status.players["test"].hand)
         self.status.roll_all()
         self.assertIsInstance(self.status.players["test"], Hand,
@@ -91,15 +97,19 @@ class TestGameStatus(TestCase):
                                                      "for single player")
 
     def test_get_winner(self):
+        # No winner
         self.status.players["test2"] = Hand()
         self.assertIs(self.status.get_winner(), None,
                       "provided winner when there is no winner")
         del self.status.players["test2"]
+
+        # There is a winner
         self.assertEqual(self.status.get_winner(), "test",
                          "did not provide the correct winner, when there is a "
                          "winner")
 
     def test_turn_player(self):
+        # Checking iterating through player order
         self.status.add_player("test2")
         self.status._turn_player_index = 0
         self.assertEqual(self.status.turn_player(), "test",
@@ -109,6 +119,9 @@ class TestGameStatus(TestCase):
                          "incorrect turn player added player)")
 
     def test_turn_player_previous(self):
+        # Able to extract the previous turn player
+        # No need to check when there is only 1 player, as this functionality
+        # won't be required then.
         self.status.add_player("test2")
         self.status._turn_player_index = 0
         self.assertEqual(self.status.turn_player_previous(), "test2",
@@ -119,12 +132,15 @@ class TestGameStatus(TestCase):
 
     def test_get_player_status(self):
         self.status.add_player("test2")
+
+        # Player status when there are players
         test_output = self.status.get_player_status()
         expected_output = [("test", Hand.INITIAL_HAND_SIZE),
                            ("test2", Hand.INITIAL_HAND_SIZE)]
         self.assertEqual(test_output, expected_output,
-                         "incorrect for no players")
+                         "incorrect when there are players players")
 
+        # No players
         self.status.players = {}
         self.status.player_order = []
         test_output = self.status.get_player_status()
@@ -133,27 +149,32 @@ class TestGameStatus(TestCase):
                          "incorrect for no players")
 
     def test_handle_bid(self):
+        # Valid bid (due to face)
         self.status.previous_bid = (1, 5)
         self.status.handle_bid(2, 5)
         self.assertEqual(self.status.previous_bid, (2, 5),
                          "not updated when the face is higher")
 
+        # Valid bid (due to number of dice, and same value for face)
         self.status.previous_bid = (3, 3)
         self.status.handle_bid(3, 4)
         self.assertEqual(self.status.previous_bid, (3, 4),
                          "not updated when the number is higher and the face "
                          "is the same")
 
+        # Valid bid (due to number of dice with lower value for face)
         self.status.previous_bid = (3, 3)
         self.status.handle_bid(2, 4)
         self.assertEqual(self.status.previous_bid, (2, 4),
                          "not updated when the number is higher and the face "
                          "is lower")
 
+        # Invalid bid (same bid)
         self.status.previous_bid = (3, 3)
         result = self.status.handle_bid(3, 3)
         self.assertIs(result, False, "should not accept the bid")
 
+        # Invalid bid (lower face, same number)
         self.status.previous_bid = (3, 3)
         self.status.handle_bid(2, 3)
         self.assertEqual(self.status.previous_bid, (3, 3),
@@ -164,14 +185,17 @@ class TestGameStatus(TestCase):
         self.status.add_player("test2")
         self.status._dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
 
+        # Incorrect call
         self.status.handle_bid(2, 4)
         self.assertEqual(self.status.handle_liar(), ("test", False),
                          "wrong player (incorrect guess)")
 
+        # Correct call
         self.status.handle_bid(2, 5)
         self.assertEqual(self.status.handle_liar(), ("test2", False),
                          "wrong player (correct guess)")
 
+        # Incorrect call + elimination
         self.status.handle_bid(2, 4)
         self.status.players["test2"].hand = [Die()]
         self.assertEqual(self.status.handle_liar(), ("test2", True),
@@ -182,14 +206,17 @@ class TestGameStatus(TestCase):
         self.status.add_player("test2")
         self.status._dice_count = collections.Counter([2, 2, 2, 2, 1, 1, 3, 5])
 
+        # Correct call
         self.status.handle_bid(2, 4)
         self.assertEqual(self.status.handle_spot_on(), ("test2", False),
                          "wrong player (correct guess)")
 
+        # Incorrect call
         self.status.handle_bid(2, 5)
         self.assertEqual(self.status.handle_spot_on(), ("test", False),
                          "wrong player (incorrect guess)")
 
+        # Incorrect call + elimination
         self.status._turn_player_index = 0
         self.status.handle_bid(6, 20)
         self.status.players["test"].hand = [Die()]
@@ -197,6 +224,7 @@ class TestGameStatus(TestCase):
                          "player should be eliminated")
 
     def test_get_player_hands(self):
+        # Extract player's hands
         self.status.add_player("test2")
         self.status.players["test"].hand = [Die()]
         self.status.players["test"].hand[0].face = 1

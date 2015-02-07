@@ -253,7 +253,8 @@ class PlayWindow(Toplevel):
         for i in xrange(len(text)):
             # Generate the button
             command = functools.partial(reaction, i)
-            button = Button(master, text=text[i], command=command)
+            button = Button(master, text=text[i], height=3, width=8,
+                            command=command)
 
             # Place the button
             row, column = self.position_widget(i)
@@ -423,7 +424,7 @@ class App(Player):
         self._console_frame = ConsoleFrame(master)
         self._console_frame.grid(row=3, column=0)
         self._console_frame.columnconfigure(0, weight=1)
-        self._chat_entry = Entry(master)
+        self._chat_entry = Entry(master, width=70)
         self._chat_entry.grid(row=4, column=0)
         self._chat_entry.columnconfigure(0, weight=1)
         self._chat_entry.focus_set()
@@ -469,6 +470,7 @@ class App(Player):
 
     def notification_username_request(self):
         window = UsernameWindow(self._master, self)
+        window.resizable(width=False, height=False)
         self._master.wait_window(window)
 
         # Prevent user from shutting down the window without submitting their
@@ -478,6 +480,7 @@ class App(Player):
 
     def notification_play_request(self):
         window = PlayWindow(self._master, self)
+        window.resizable(width=False, height=False)
         self._master.wait_window(window)
 
         # Prevent user from shutting down the window without submitting their

@@ -30,7 +30,7 @@ And then caling the appropriate method to run the script with:
 
 ### Server
 
-To run the server, just call liars_dice.server.server.run(). This will run a server at the port number given by liars_dice/config.ini (9637 default). The server can only run one game at a time, though multiple games can be run on a single computer as long as the port numbers are different. There are no restrictions on the number of players who can join, though be warned that a large number of players can be very cumbersome to play with, and the GUI client may not suitable for such games.
+To run the server, just call liars_dice.server.game_server.run(). This will run a server at the port number given by liars_dice/config.ini (9637 default). The server can only run one game at a time, though multiple games can be run on a single computer as long as the port numbers are different. There are no restrictions on the number of players who can join, though be warned that a large number of players can be very cumbersome to play with, and the GUI client may not suitable for such games.
 
 ### Client
 

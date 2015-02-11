@@ -122,7 +122,7 @@ class PlayWindow(Toplevel):
             server.
     """
 
-    def __init__(self, master, client, **kwargs):
+    def __init__(self, master, client, bid_only, **kwargs):
         """
         Args:
             master: Tkinter master frame.
@@ -149,7 +149,7 @@ class PlayWindow(Toplevel):
                                                           for x in
                                                           xrange(1, 7)])
 
-        # Action buttons
+        # Create action buttons
         liar = Button(self, text="Liar!", command=self.pressed_liar)
         liar.pack(side=TOP)
         spot_on = Button(self, text="Spot On!",
@@ -158,6 +158,11 @@ class PlayWindow(Toplevel):
         self._bid_button = Button(self, text="Bid!", state=DISABLED,
                                   command=self.pressed_bid)
         self._bid_button.pack(side=TOP)
+
+        # Disable 'Spot On' and 'Liar' buttons if they're invalid
+        if bid_only:
+            liar.configure(state=DISABLED)
+            spot_on.configure(state=DISABLED)
 
         # Colour to change buttons to when clicked
         self._selectedbg = "#00ffff"
@@ -443,6 +448,7 @@ class App(Player):
         self._player_data = []
         self._turn_username = None
         self._can_start = False
+        self._previous_bid_exists = False
 
     def connectionLost(self, reason=connectionDone):
         self._console_frame.emit_line("Disconnected from the server.")
@@ -482,7 +488,7 @@ class App(Player):
             self.notification_username_request()
 
     def notification_play_request(self):
-        window = PlayWindow(self._master, self)
+        window = PlayWindow(self._master, self, not self._previous_bid_exists)
         window.resizable(width=False, height=False)
         self._master.wait_window(window)
 
@@ -513,6 +519,8 @@ class App(Player):
         self._hand_frame.generate_hand_display(hand)
 
     def notification_bid(self, face, number):
+        self._previous_bid_exists = True
+
         self._previous_bid_frame.display_previous_bid(face, number)
 
         out_face = str(face)
@@ -563,7 +571,9 @@ class App(Player):
             self._previous_bid_frame.grid()
             self._start_button.destroy()
 
+        # Clear previous bid
         self._previous_bid_frame.display_previous_bid(1, 0)
+        self._previous_bid_exists = False
 
         self._console_frame.emit_line("New round!")
 

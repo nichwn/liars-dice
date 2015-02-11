@@ -7,6 +7,7 @@ from Tkinter import *
 import tkFont
 import functools
 from twisted.internet import tksupport, reactor
+from twisted.internet.protocol import connectionDone
 from liars_dice import config_parse
 from liars_dice.client.player import Player, PlayerFactory
 
@@ -442,6 +443,9 @@ class App(Player):
         self._player_data = []
         self._turn_username = None
         self._can_start = False
+
+    def connectionLost(self, reason=connectionDone):
+        self._console_frame.emit_line("Disconnected from the server.")
 
     def send_chat_message(self, event):
         """Sends the chat message in the chat window to the server.

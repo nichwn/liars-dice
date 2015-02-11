@@ -24,13 +24,16 @@ class LiarsGame(LineReceiver):
     def lineReceived(self, line):
 
         # Parse the received message
-        message = line.split(network_command.DELIMITER)
-        command = message[0]
-        if len(message) == 1:
+        try:
+            divide = line.index(network_command.DELIMITER)
+            command = line[:divide]
+            extra = line[divide + 1:]
+        except ValueError:
+            command = line
             extra = None
-        else:
-            extra = message[1]
 
+        # Action
+        print line
         if command == network_command.USERNAME:
             self._received_username(extra)
 

@@ -26,13 +26,14 @@ class Player(LineReceiver):
 
     def lineReceived(self, line):
 
-        # Parse message
-        message = line.split(network_command.DELIMITER)
-        command = message[0]
-        if len(message) == 1:
+        # Parse the received message
+        try:
+            divide = line.index(network_command.DELIMITER)
+            command = line[:divide]
+            extra = line[divide + 1:]
+        except ValueError:
+            command = line
             extra = None
-        else:
-            extra = message[1]
 
         # Delegate to the appropriate method
         if command == network_command.PLAYER_HAND:
@@ -95,14 +96,11 @@ class Player(LineReceiver):
         """Register the player's username with the server.
 
         Args:
-            username: A string with the player's username. Colons are not
-                permitted in the username and will be automatically removed.
+            username: A string with the player's username.
         """
         if self._allow_username_change:
-            self.sendLine(
-                network_command.USERNAME + network_command.DELIMITER +
-                username.replace(
-                    network_command.DELIMITER, ""))
+            self.sendLine(network_command.USERNAME +
+                          network_command.DELIMITER + username)
             self.username = username
             self._allow_username_change = False
 

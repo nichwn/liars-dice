@@ -7,7 +7,7 @@ from Tkinter import *
 import tkFont
 import functools
 from twisted.internet import tksupport, reactor
-from liars_dice import config_parse, network_command
+from liars_dice import config_parse
 from liars_dice.client.player import Player, PlayerFactory
 
 
@@ -396,8 +396,7 @@ class UsernameWindow(Toplevel):
 
     def send_username(self, event=None):
         """Send the username entered to the server."""
-        username = self._username_entry.get().replace(network_command.DELIMITER,
-                                                      "")
+        username = self._username_entry.get()
         self._client.send_username(username)
         self.submitted = True
         self.destroy()

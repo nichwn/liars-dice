@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 
 An interface for a human player to play the game via a GUI.

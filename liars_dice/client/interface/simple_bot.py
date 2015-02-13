@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 
 A simple bot that can connect to the server and play the game. It cannot start

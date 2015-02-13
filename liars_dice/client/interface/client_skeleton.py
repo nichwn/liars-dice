@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 
 A client skeleton intended to make developing a client easier.

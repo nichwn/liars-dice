@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 
 Server to run the game.

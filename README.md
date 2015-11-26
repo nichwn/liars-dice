@@ -10,7 +10,7 @@ How to Play
 
 Players are initially given 5 dice each. Each round, all players privately roll all their dice such that they can see the faces, but nobody else can. Players then take it in turns to perform one of three actions:
 
-* They pick a die face and a number of dice, and make a bid. In this version, all bids must either have a higher number of dice, or the same number with a higher die face.
+* They pick a die face and a number of dice, and make a bid. In this version, all bids must either have a larger number of dice, or the same number with a higher die face.
 * They challenge the previous bid ('Liar!'), and if the there are less dice pooled amongst the players than the number predicted for the predicted face, the player who made the bet loses a die. If incorrect, the challenger loses a die instead. Then the game proceeds to the next round.
 * They predict that the previous bid is correct ("Spot On!"). In this version, if the number of dice with that face amongst all the player's dice match the previous bid, then the player who made the big loses a die. If incorrect, the declarer loses a die instead. Then the game proceeds to the next round.
 
@@ -59,7 +59,7 @@ By default, all connections by the clients and server are via localhost. As such
 How to Make Your Own Client
 ---------------------------
 
-Making your own client is pretty simple. All you need to do is inherit liars_dice.client.player.Player and override the notification_XXX() methods corresponding to the events you'd like to respond to. By default, all event calls are ignored except notification_username_notification_request(), notification_play_request() and notification_can_start() which must be overriden, or else they will raise an exception.
+Making your own client is pretty simple. All you need to do is inherit liars_dice.client.player.Player and override the notification_XXX() methods corresponding to the events you'd like to respond to. The methods notification_username_notification_request(), notification_play_request() and notification_can_start() must be overriden, or else they will raise an exception, but the others are optional.
 
 A skeleton at liars_dice/client/interface/client_skeleton.py has been provided to make writing a client more convenient. Feel free to copy the file and extend it with your changes.
 
